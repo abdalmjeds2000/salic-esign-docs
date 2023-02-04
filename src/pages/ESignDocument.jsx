@@ -59,7 +59,7 @@ const Page = ({item, totalPages, setDocumentSchema}) => {
       const currentPage = item;
         if(!currentPage.isLoaded) {
         console.log(entries[0].target.id);
-        await wait(1000);
+        await wait(10000);
         setDocumentSchema(prev => {
           prev.pages.filter(itm => itm.Index === item.Index)[0].isLoaded = true;
           return {...prev}
@@ -89,7 +89,7 @@ const Page = ({item, totalPages, setDocumentSchema}) => {
   )
 }
 const Document = ({ pages, actions, setDocumentSchema }) => {
-  const { activePage, setActivePage } = useStateContext();
+  const { activePage, setActivePage, scale } = useStateContext();
 
   return (
     <div className="flex-[7] flex flex-col bg-neutral-100 px-4 dark:bg-neutral-700 overflow-auto">
@@ -114,10 +114,10 @@ const Document = ({ pages, actions, setDocumentSchema }) => {
       </div>
       <div className='pages-body h-full'>
         <Scrollbars style={{ height: "100%" }}>
-          <div className='pages flex flex-col items-center h-full'>
+          <div className='pages block h-full'>
               {
                 pages?.map((item) => (
-                  <div>
+                  <div className="mx-auto" style={{ width: item.width * scale }}>
                     <Page
                       key={item.Index}
                       item={item} 

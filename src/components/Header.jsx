@@ -109,7 +109,7 @@ const Header = () => {
 
 
   const ViewerTools = () => (
-    <div className='flex gap-2 ml-4'>
+    <div className='flex gap-2'>
       <ToolbarBtn
         icon={<FiRotateCcw />}
         title="Rotate Counterclockwise"
