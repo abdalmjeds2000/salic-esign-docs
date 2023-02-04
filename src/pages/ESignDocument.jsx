@@ -59,7 +59,7 @@ const Page = ({item, totalPages, setDocumentSchema}) => {
       const currentPage = item;
         if(!currentPage.isLoaded) {
         console.log(entries[0].target.id);
-        await wait(10000);
+        await wait(1000);
         setDocumentSchema(prev => {
           prev.pages.filter(itm => itm.Index === item.Index)[0].isLoaded = true;
           return {...prev}
