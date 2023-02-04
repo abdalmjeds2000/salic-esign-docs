@@ -1,24 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+import { BrowserRouter } from "react-router-dom";
+import { ChakraProvider } from "@chakra-ui/react";
+import { useStateContext } from "./context/ContextProvider";
+import AppRoutes from './Routes/Routes';
+import { ColorModeScript } from '@chakra-ui/react';
+import theme from './chakraTheme';
 
 function App() {
+  const { currentMode } = useStateContext();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+    <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+      <div className={currentMode}>
+        <ChakraProvider>
+          <AppRoutes />
+        </ChakraProvider>
+      </div>
+    </BrowserRouter>
   );
 }
 
