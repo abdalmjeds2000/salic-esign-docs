@@ -69,7 +69,7 @@ import Rectangle from "../components/konva-components/Rectangle";
                     onClick={() => {
                       setActivePage(item.Index);
                       const element = document.getElementById(`page_${item.Index}`);
-                      if (element) element.scrollIntoView();
+                      if (element) element.scrollIntoView({block: "center"});
                     }}
                   >
                     <div className="thumb-head"></div>
@@ -148,14 +148,11 @@ import Rectangle from "../components/konva-components/Rectangle";
     )
 
     return (
-      <div key={item.Index} ref={pageRef} id={`page_${item.Index}`} className="page-item mt-8" style={{ }}>
+      <div key={item.Index} ref={pageRef} id={`page_${item.Index}`} className="page-item mb-10">
         <div 
           className="text-9xl shadow-lg bg-white overflow-hidden text-text-color" 
           style={{width: item.width * scale, height: item.height * scale, transform: `rotate(${rotation}deg)`}}
         >
-          <div className="m-14 text-right">
-            {/* {!isReady ? <Spinner size='xl' /> : "#" + item.Index} */}
-          </div>
           {isReady ? <Drawing /> : <div className="flex justify-center"><Spinner size='xl' /></div>}
         </div>
         <div className='flex justify-between'>
@@ -174,18 +171,18 @@ import Rectangle from "../components/konva-components/Rectangle";
         <div className="pages-header"></div>
         <div className='pages-body h-full'>
           <Scrollbars style={{ height: "100%" }}>
-            <div ref={pagesParentRef} id="pagesParentRef" className='pages block h-full'>
-                {
-                  pages?.map((item) => (
-                    <div key={item.Index} className="mx-auto" style={{ width: item.width * scale }}>
-                      <Page
-                        item={item} 
-                        totalPages={pages.length} 
-                        // setDocumentSchema={setDocumentSchema}
-                      />
-                    </div>
-                  ))
-                }
+            <div ref={pagesParentRef} id="pagesParentRef" className='pages block h-full py-10'>
+              {
+                pages?.map((item) => (
+                  <div key={item.Index} className="mx-auto last:pb-8" style={{ width: item.width * scale }}>
+                    <Page
+                      item={item} 
+                      totalPages={pages.length} 
+                      // setDocumentSchema={setDocumentSchema}
+                    />
+                  </div>
+                ))
+              }
             </div>
           </Scrollbars>
         </div>

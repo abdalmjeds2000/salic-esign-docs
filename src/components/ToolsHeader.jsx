@@ -18,7 +18,7 @@ const ToolsHeader = ({ actions }) => {
                   variant="solid"
                   onClick={() => {
                     const element = document.getElementById(`page_${item.page}`);
-                    if (element) element.scrollIntoView();
+                    if (element) element.scrollIntoView({block: "center"});
                   }}
                 >{i+1}</Button>
               </Tooltip>
