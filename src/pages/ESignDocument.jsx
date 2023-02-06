@@ -5,9 +5,9 @@ import { docSchema } from "../data/docSchema";
 import { Scrollbars } from 'react-custom-scrollbars-2';
 import wait from "waait";
 import { Button, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spinner, Tooltip } from "@chakra-ui/react";
-// import { fabric } from 'fabric';
-// import Konva from 'konva';
-// import { Stage, Layer, Rect, Text } from 'react-konva';
+import { fabric } from 'fabric';
+import Konva from 'konva';
+import { Stage, Layer, Rect, Text, Circle } from 'react-konva';
 
 
 function SliderThumbs({ getSliderValue }) {
@@ -91,13 +91,13 @@ const Thumbs = ({ pages }) => {
 const Page = ({item, totalPages, setDocumentSchema}) => {
   const pageRef = useRef();
   const { scale, rotation } = useStateContext();
-
+  const [isReady, setIsReady] = useState(false);
   var observer = new IntersectionObserver(async function(entries) { 
     if(entries[0]['isIntersecting'] === true) {
       const currentPage = item;
-        if(!currentPage.isLoaded) {
-        console.log(entries[0].target.id);
+      if(!currentPage.isLoaded) {
         await wait(1000);
+        setIsReady(true);
         setDocumentSchema(prev => {
           prev.pages.filter(itm => itm.Index === item.Index)[0].isLoaded = true;
           return {...prev}
@@ -105,21 +105,26 @@ const Page = ({item, totalPages, setDocumentSchema}) => {
       }
     }
   }, { threshold: [0, 0.5, 1] });
-
   useEffect(() => {
     observer.observe(pageRef.current);
   }, []);
 
+  const Drawing = () => (
+    <Stage width={item.width * scale} height={item.height * scale} style={{ position: "absolute", top: 0, left: 0 }}>
+      <Layer>
+        <Rect x={100} y={100} width={100} height={100} fill="blue" draggable shadowBlur={10} shadowOpacity={.5} />
+        <Circle
+          x={200}
+          y={200}
+          draggable
+          radius={50}
+          fill="violet"
+          onClick={(e) => console.log(e)}
+        />
+      </Layer>
+    </Stage>
+  )
 
-  // const canvas = new fabric.Canvas(`canvas__page__${item.Index}`, {
-  //   width: item.width * scale,
-  //   height: item.height * scale,
-  //   backgroundColor: "#fff",
-  // });
-  // useEffect(() => {
-  //   canvas.setWidth(item.width * scale);
-  //   canvas.setHeight(item.height * scale);
-  // }, [scale])
   return (
     <div key={item.Index} className="page-item mb-4" id={`page_${item.Index}`} ref={pageRef}>
       <div 
@@ -127,7 +132,7 @@ const Page = ({item, totalPages, setDocumentSchema}) => {
         style={{width: item.width * scale, height: item.height * scale, transform: `rotate(${rotation}deg)`}}
       >
         {!item.isLoaded ? <Spinner size='xl' /> : item.Index}
-        {/* <canvas id={`canvas__page__${item.Index}`} /> */}
+        {isReady && <Drawing />}
       </div>
       <div className='flex justify-between'>
         <div>file.png</div>
