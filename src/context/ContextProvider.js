@@ -6,7 +6,6 @@ export const ContextProvider = ({ children }) => {
   const [activeThumbnailes, setActiveThumbnailes] = useState(true);
   const [currentMode, setCurrentMode] = useState(localStorage.getItem('chakra-ui-color-mode') || 'light');
   const totalPages = 0;
-  const [activePage, setActivePage] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(0);
@@ -68,7 +67,6 @@ export const ContextProvider = ({ children }) => {
       rotation, setRotation,
       goPage,
       handleFullScreen,
-      activePage, setActivePage
     }}>
       {children}
     </StateContext.Provider>

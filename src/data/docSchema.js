@@ -17,12 +17,27 @@ export var docSchema = {
 		{
 			type: "date",
 			page: 2,
+			isSigned: true,
+		},{
+			type: "date",
+			page: 2,
+			isSigned: false,
 		},{
 			type: "date",
 			page: 4,
+			isSigned: true,
 		},{
 			type: "date",
 			page: 8,
+			isSigned: true,
+		},{
+			type: "date",
+			page: 8,
+			isSigned: true,
+		},{
+			type: "date",
+			page: 8,
+			isSigned: false,
 		},
 	],
 	pages: [

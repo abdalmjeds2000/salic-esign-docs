@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useStateContext } from '../context/ContextProvider';
-import { Select, Tooltip, Button, IconButton, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Th, Thead, Tr, useColorMode, useDisclosure } from '@chakra-ui/react';
+import { Tooltip, Button, IconButton, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Th, Thead, Tr, useColorMode, useDisclosure, MenuDivider, scaleFadeConfig } from '@chakra-ui/react';
 import { TbFileInfo, TbLayoutSidebar, TbSettings } from 'react-icons/tb';
 import { FiRotateCcw, FiRotateCw, FiZoomIn, FiZoomOut } from 'react-icons/fi';
 import { MdDarkMode, MdOutlineLightMode } from 'react-icons/md';
@@ -8,11 +8,13 @@ import logo from "../assets/images/horizontal-logo.png";
 import { zoomOptions } from '../data/viewerData';
 import { Kbd } from '@chakra-ui/react';
 import { RiArrowRightSLine, RiArrowLeftSLine } from 'react-icons/ri';
+import { BiChevronDown } from 'react-icons/bi';
+import { IoMdCheckmark } from 'react-icons/io';
 
 const ToolbarBtn = ({ icon, canActive, title, handleClick, initStatus, className }) => {
   const [isActive, setIsActive] = useState(initStatus || false);
   return (
-    <Tooltip label={title} fontSize="md">
+    <Tooltip label={title} hasArrow fontSize="small">
       <span className={className}>
         <button
           type='button'
@@ -103,7 +105,7 @@ const DocumentInformation = ({ data, numOfPages }) => {
 
 
 const Header = ({ docSchema }) => {
-  const { currentMode, scale, setMode, setActiveThumbnailes, handleFullScreen, handleRotateLeft, handleRotateRight, handleZoomIn, handleZoomOut, setZoom } = useStateContext();
+  const { currentMode, scale, setMode, setActiveThumbnailes, handleFullScreen, handleRotateLeft, handleRotateRight, handleZoomIn, handleZoomOut, setZoom, activeThumbnailes } = useStateContext();
   const { toggleColorMode } = useColorMode();
   const [isShowTools, setIsShowTools] = useState(false);
 
@@ -113,6 +115,10 @@ const Header = ({ docSchema }) => {
     const newScale = parentWidth / firstPageWidth;
     return newScale
   }
+
+  useEffect(() => {
+    setZoom(setScaleByParentWidth());
+  }, [activeThumbnailes]);
 
   const ViewerTools = () => (
     <div className='flex gap-2'>
@@ -133,10 +139,24 @@ const Header = ({ docSchema }) => {
         handleClick={handleZoomOut}
       />
       <div>
-        <Select variant='filled' value={scale} onChange={e => setZoom(Number(e.target.value))}>
+        {/* <Select variant='filled' value={scale} onChange={e => setZoom(Number(e.target.value))}>
           <option value={setScaleByParentWidth()} selected>Fit</option>
           {zoomOptions.map((option, i) => <option key={i} value={option.value} selected={option.selected}>{option.label}</option>)}
-        </Select>
+        </Select> */}
+
+        <Menu>
+          <MenuButton as={Button} rightIcon={<BiChevronDown />}>
+            {Math.round(scale*100)}%
+          </MenuButton>
+          <MenuList>
+            <MenuItem onClick={() => setZoom(setScaleByParentWidth())}>Fit to width</MenuItem>
+            {/* <MenuItem>Fit to hight</MenuItem> */}
+            <MenuDivider />
+            {zoomOptions.map((item, i) => (
+              <MenuItem command={scale === item.value ? <IoMdCheckmark /> : ""} onClick={() => setZoom(item.value)}>{item.label}</MenuItem>
+            ))}
+          </MenuList>
+        </Menu>
       </div>
       <ToolbarBtn
         icon={<FiZoomIn />}
@@ -145,10 +165,13 @@ const Header = ({ docSchema }) => {
       />
     </div>
   );
-  return (
-    <header className='fixed w-full shadow-lg h-14 md:h-16'>
-      <div className='flex justify-between w-full h-full px-3 py-0 md:px-6 md:py-3 items-center bg-[#e7ebee] dark:bg-main-dark-bg'>
 
+
+
+  
+  return (
+    <header className='w-full border-b-2 border-gray-200 dark:border-gray-800 z-10 h-14 md:h-16'>
+      <div className='flex justify-between w-full h-full px-3 py-0 md:px-6 md:py-3 items-center bg-[#e7ebee] dark:bg-main-dark-bg'>
         <div className='flex gap-2'>
           <div className='hidden md:block mr-4'>
             <ToolbarBtn
@@ -172,7 +195,6 @@ const Header = ({ docSchema }) => {
             {isShowTools ? <ViewerTools /> : null}
           </div>
         </div>
-
         <div>
           <img src={logo} alt="logo" className="hidden md:block" style={{ height: 30, filter: currentMode === "dark" ? "grayscale(1) invert(1)" : "" }} />
         </div>
