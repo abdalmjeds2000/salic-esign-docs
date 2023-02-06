@@ -200,7 +200,7 @@ const ESignDocument = () => {
   const { activeThumbnailes } = useStateContext();
 
   return (
-    <div className="flex flex-col w-screen h-screen overflow-hidden bg-white">
+    <div className="flex flex-col w-screen h-screen bg-white">
       <Header docSchema={documentSchema} />
       <ToolsHeader actions={documentSchema.actions} />
 
