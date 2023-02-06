@@ -11,9 +11,8 @@ const ToolsHeader = ({ actions }) => {
           <div></div>
           <div className='flex gap-2 items-center'>
             {actions?.map((item, i) => (
-              <Tooltip label={`#${item.page}`}>
+              <Tooltip key={i} label={`#${item.page}`}>
                 <Button
-                  key={i} 
                   size="xs"
                   colorScheme={item.isSigned ? "green" : "red"}
                   variant="solid"
