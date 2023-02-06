@@ -5,7 +5,7 @@ import React from "react";
 const ToolsHeader = ({ actions }) => {
 
     return (
-    <div className="shadow-2xl dark:drop-shadow-xl md:top-16 w-full">
+    <div className="fixed top-14 md:top-16 shadow-2xl dark:drop-shadow-xl z-10 w-full">
       <div className="h-8 md:h-10 px-3 py-1 md:px-6 bg-[#f0f2f4] dark:bg-secondary-dark-bg dark:text-white text-text-color">
         <div className="h-full flex justify-between items-center overflow-auto">
           <div></div>

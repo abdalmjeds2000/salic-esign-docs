@@ -170,7 +170,7 @@ const Header = ({ docSchema }) => {
 
   
   return (
-    <header className='w-full border-b-2 border-gray-200 dark:border-gray-800 z-10 h-14 md:h-16'>
+    <header className='fixed top-0 w-full border-b-2 border-gray-200 dark:border-gray-800 z-10 h-14 md:h-16'>
       <div className='flex justify-between w-full h-full px-3 py-0 md:px-6 md:py-3 items-center bg-[#e7ebee] dark:bg-main-dark-bg'>
         <div className='flex gap-2'>
           <div className='hidden md:block mr-4'>

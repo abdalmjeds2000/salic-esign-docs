@@ -200,11 +200,11 @@ const ESignDocument = () => {
   const { activeThumbnailes } = useStateContext();
 
   return (
-    <div className="flex flex-col w-screen h-screen overflow-auto bg-white">
+    <div className="w-screen h-screen overflow-auto bg-white">
       <Header docSchema={documentSchema} />
       <ToolsHeader actions={documentSchema.actions} />
 
-      <main className="flex h-full">
+      <main className="flex flex-1 h-full pt-[5.5rem] md:pt-[6.5rem]">
         {activeThumbnailes && <Thumbs pages={documentSchema.pages} actions={documentSchema.actions} />}
         <Document pages={documentSchema.pages} />
       </main>
