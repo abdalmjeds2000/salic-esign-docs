@@ -21,14 +21,23 @@ module.exports = {
 
         'half-transparent': 'rgba(0, 0, 0, 0.5)',
         'transparent-white': 'rgba(240, 240, 240, 0.8)',
+
+        'salic-dark-blue': '#0e4d89',
+        'salic-light-blue': '#349AD5',
       },
       textColor: {
         'text-color': '#485056',
         'active-color': '#1a4971',
         'light-active-color': '#52a7ef',
+        'salic-dark-blue': '#0e4d89',
+        'salic-light-blue': '#349AD5',
       },
       borderColor: {
         'active-color': '#1a4971',
+      },
+      outlineColor: {
+        'salic-dark-blue': '#0e4d89',
+        'salic-light-blue': '#349AD5',
       }
     },
   },

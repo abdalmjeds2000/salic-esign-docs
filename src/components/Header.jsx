@@ -22,7 +22,9 @@ const ToolbarBtn = ({ icon, canActive, title, handleClick, initStatus, className
             if(canActive) {
               setIsActive(prev => !prev);
             }
-            handleClick();
+            if(handleClick) {
+              handleClick();
+            }
           }}
           className={`hover:bg-active-color hover:dark:bg-gray-500 hover:text-active-color text-text-color dark:text-white h-10 w-10 rounded-md active:scale-95 transition-all  ${isActive ? 'bg-active-color text-active-color dark:text-text-color dark:hover:text-white' : ''} `}
         >
@@ -139,11 +141,6 @@ const Header = ({ docSchema }) => {
         handleClick={handleZoomOut}
       />
       <div>
-        {/* <Select variant='filled' value={scale} onChange={e => setZoom(Number(e.target.value))}>
-          <option value={setScaleByParentWidth()} selected>Fit</option>
-          {zoomOptions.map((option, i) => <option key={i} value={option.value} selected={option.selected}>{option.label}</option>)}
-        </Select> */}
-
         <Menu>
           <MenuButton as={Button} rightIcon={<BiChevronDown />}>
             {Math.round(scale*100)}%
@@ -153,7 +150,7 @@ const Header = ({ docSchema }) => {
             {/* <MenuItem>Fit to hight</MenuItem> */}
             <MenuDivider />
             {zoomOptions.map((item, i) => (
-              <MenuItem command={scale === item.value ? <IoMdCheckmark /> : ""} onClick={() => setZoom(item.value)}>{item.label}</MenuItem>
+              <MenuItem key={i} command={scale === item.value ? <IoMdCheckmark /> : ""} onClick={() => setZoom(item.value)}>{item.label}</MenuItem>
             ))}
           </MenuList>
         </Menu>
@@ -201,16 +198,7 @@ const Header = ({ docSchema }) => {
         {!  isShowTools && <div className='flex gap-2'>
           <DocumentInformation data={docSchema.invitor} numOfPages={docSchema.numOfPages} />
           <Menu>
-            <MenuButton
-              as={IconButton}
-              aria-label='Options'
-              style={{ backgroundColor: "transparent" }}
-              icon={<ToolbarBtn
-                icon={<TbSettings />}
-                title="Menu"
-                // canActive
-              />}
-            />
+            <MenuButton as={Button} aria-label='Options'><TbSettings style={{ fontSize: "1.5rem" }} /></MenuButton>
             <MenuList>
               <MenuItem onClick={handleFullScreen} command={<Kbd>F11</Kbd>}>
                 Fullscreen
