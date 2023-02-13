@@ -3,7 +3,7 @@ import { useStateContext } from '../context/ContextProvider';
 import { Tooltip, Button, IconButton, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Th, Thead, Tr, useColorMode, useDisclosure, MenuDivider, scaleFadeConfig } from '@chakra-ui/react';
 import { TbFileInfo, TbLayoutSidebar, TbSettings } from 'react-icons/tb';
 import { FiRotateCcw, FiRotateCw, FiZoomIn, FiZoomOut } from 'react-icons/fi';
-import { MdDarkMode, MdOutlineLightMode } from 'react-icons/md';
+import { MdDarkMode, MdOutlineImage, MdOutlineLightMode } from 'react-icons/md';
 import logo from "../assets/images/horizontal-logo.png";
 import { zoomOptions } from '../data/viewerData';
 import { Kbd } from '@chakra-ui/react';
@@ -105,11 +105,18 @@ const DocumentInformation = ({ data, numOfPages }) => {
 };
 
 
+const qualityOptions = [
+  { label: "Low", value: 1 },
+  { label: "Normal", value: 2 },
+  { label: "High", value: 3 },
+];
+
 
 const Header = ({ docSchema }) => {
   const { currentMode, scale, setMode, setActiveThumbnailes, handleFullScreen, handleRotateLeft, handleRotateRight, handleZoomIn, handleZoomOut, setZoom, activeThumbnailes } = useStateContext();
   const { toggleColorMode } = useColorMode();
   const [isShowTools, setIsShowTools] = useState(false);
+  const [pdfQuality, setPdfQuality] = useState(2);
 
   const setScaleByParentWidth = () => {
     const parentWidth = document.getElementById("pagesParentRef")?.clientWidth * 0.9;
@@ -165,7 +172,7 @@ const Header = ({ docSchema }) => {
 
 
 
-  
+
   return (
     <header className='fixed top-0 w-full border-b-2 border-gray-200 dark:border-gray-800 z-10 h-14 md:h-16'>
       <div className='flex justify-between w-full h-full px-3 py-0 md:px-6 md:py-3 items-center bg-[#e7ebee] dark:bg-main-dark-bg'>
@@ -195,8 +202,22 @@ const Header = ({ docSchema }) => {
         <div>
           <img src={logo} alt="logo" className="hidden md:block" style={{ height: 30, filter: currentMode === "dark" ? "grayscale(1) invert(1)" : "" }} />
         </div>
-        {!  isShowTools && <div className='flex gap-2'>
-          <DocumentInformation data={docSchema.invitor} numOfPages={docSchema.numOfPages} />
+        {!isShowTools && <div className='flex gap-2'>
+          <Menu>
+            <DocumentInformation data={docSchema.invitor} numOfPages={docSchema.numOfPages} />
+            <MenuButton as={Button} aria-label='Options' rightIcon={<BiChevronDown />}>
+              <span className='text-text-color dark:text-white text-2xl'>
+                <MdOutlineImage />
+              </span>
+            </MenuButton>
+            <MenuList>
+              {qualityOptions?.map(item => (
+                <MenuItem onClick={() => setPdfQuality(item.value)} command={pdfQuality == item.value ? <IoMdCheckmark /> : null}>
+                  <span className={pdfQuality === item.value ? "font-semibold" : ""}>{item.label}</span>
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
           <Menu>
             <MenuButton as={Button} aria-label='Options'><TbSettings style={{ fontSize: "1.5rem" }} /></MenuButton>
             <MenuList>
