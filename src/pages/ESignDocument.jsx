@@ -3,13 +3,11 @@ import { useStateContext } from "../context/ContextProvider";
 import Header from "../components/Header";
 import { docSchema } from "../data/docSchema";
 import { Scrollbars } from 'react-custom-scrollbars-2';
-import wait from "waait";
 import { Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spinner, Tooltip } from "@chakra-ui/react";
 import { Stage, Layer, Rect, Text, Circle } from 'react-konva';
 import ToolsHeader from "../components/ToolsHeader";
 import useOnScreen from "../hooks/useOnScreen";
 import { Signatures } from "../components/signature-pad/SignaturePad";
-import axios from "axios";
 
 
   function SliderThumbs({ getSliderValue }) {
@@ -110,7 +108,7 @@ import axios from "axios";
 
   const Page = ({item, totalPages}) => {
     const pageRef = useRef();
-    const { scale, rotation, setActivePage } = useStateContext();
+    const { scale, rotation, setActivePage, pdfQuality } = useStateContext();
     const [isReady, setIsReady] = useState(false);
     const [imgData, setImgData] = useState({});
     const [loading, setLoading] = useState(true);
@@ -121,7 +119,7 @@ import axios from "axios";
       setLoading(true);
       setImgData({ 
         // src: require(`../assets/images/imagesfile/Logotype ( PDFDrive )_page-${item.Index.toString().padStart(4, '0')}.jpg`),
-        src: 'https://salicapi.com/api/Signature/GetPage?Page=' + (item.Index-1),
+        src: `https://salicapi.com/api/Signature/GetPage?Page=${item.Index-1}&q=${pdfQuality}`,
         index: item.Index, 
         size: "1MB", 
         alt: "", 
@@ -156,26 +154,29 @@ import axios from "axios";
       }
 
     }, [isOnScreen, timer]);
+    useEffect(() => {
+      setIsReady(false);
+    }, [pdfQuality]);
 
-    // const Drawing = () => (
-    //   <Stage width={item.width * scale} height={item.height * scale} scale={{x: scale, y: scale}} style={{ position: "absolute", top: 0, left: 0 }}>
-    //     <Layer>
-    //       <Rect x={25} y={25} width={50} height={50} fill="#0035c6" onClick={() => alert("you are clicked on rectangle")} shadowBlur={10} shadowOpacity={.5} />
-    //       <Circle
-    //         x={70}
-    //         y={70}
-    //         draggable
-    //         radius={25}
-    //         fill="#00c6c6"
-    //         onClick={() => alert("you are clicked on Circle")}
-    //         pointer
-    //       />
-    //       <Text x={100} y={40} text="This is try to Draw Text" draggable fontSize={22} />
-    //       <Text x={350} y={40} text={"#" + item.Index} fontSize={22} />
-    //     </Layer>
-    //     {/* <Signatures pageNumber={item.Index} /> */}
-    //   </Stage>
-    // )
+    const Drawing = () => (
+      <Stage width={item.width * scale} height={item.height * scale} scale={{x: scale, y: scale}} style={{ position: "absolute", top: 0, left: 0 }}>
+        <Layer>
+          <Rect x={25} y={25} width={50} height={50} fill="#0035c6" onClick={() => alert("you are clicked on rectangle")} shadowBlur={10} shadowOpacity={.5} />
+          <Circle
+            x={70}
+            y={70}
+            draggable
+            radius={25}
+            fill="#00c6c6"
+            onClick={() => alert("you are clicked on Circle")}
+            pointer
+          />
+          <Text x={100} y={40} text="This is try to Draw Text" draggable fontSize={22} />
+          <Text x={350} y={40} text={"#" + item.Index} fontSize={22} />
+        </Layer>
+        <Signatures pageNumber={item.Index} />
+      </Stage>
+    )
     
     return (
       <div key={item.Index} ref={pageRef} id={`page_${item.Index}`} className={`page-item mb-10 transition-all ${isReady ? "opacity-100" : "opacity-25"}`}>
@@ -187,7 +188,7 @@ import axios from "axios";
             !loading
             ? (
               <>
-                {/* <Drawing /> */}
+                <Drawing />
                 <img 
                   src={imgData.src} alt=""
                   width={imgData.width * scale} height={imgData.height * scale} 
@@ -211,7 +212,7 @@ import axios from "axios";
     const { scale } = useStateContext();
 
     return (
-      <div className="flex-[7] flex flex-col bg-neutral-100 px-8 dark:bg-neutral-700 overflow-auto">
+      <div className="flex-[7] flex flex-col bg-neutral-100 px-2 md:px-6 dark:bg-neutral-700 overflow-auto">
         <div className="pages-header"></div>
         <div className='pages-body h-full'>
           <Scrollbars style={{ height: "100%" }}>

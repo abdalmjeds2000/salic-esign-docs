@@ -11,6 +11,7 @@ export const ContextProvider = ({ children }) => {
   const [rotation, setRotation] = useState(0);
   const [signatures, setSignatures] = useState([]);
   const [activePage, setActivePage] = useState(1);
+  const [pdfQuality, setPdfQuality] = useState(2);
 
 
 
@@ -41,6 +42,14 @@ export const ContextProvider = ({ children }) => {
   function previousPage() {
     setCurrentPage(prev => prev > 1 ? prev - 1 : prev);
   }
+
+  function goToPage(page) {
+    setActivePage(page);
+    const element = document.getElementById(`page_${page}`);
+    if (element) element.scrollIntoView({ behavior: 'smooth' });
+  }
+
+
   function goPage(value) {
     if(Number(value) <= totalPages && Number(value) > 0) {
       setCurrentPage(value);
@@ -70,7 +79,9 @@ export const ContextProvider = ({ children }) => {
       goPage,
       handleFullScreen,
       signatures, setSignatures,
-      activePage, setActivePage
+      activePage, setActivePage,
+      goToPage,
+      pdfQuality, setPdfQuality
     }}>
       {children}
     </StateContext.Provider>

@@ -2,7 +2,7 @@ export var docSchema = {
 	documentId: 18,
 	title: "document.pdf",
 	size: "12mb",
-	numOfPages: 10,
+	numOfPages: 100,
 	invitor: {
 		Name: "Akmal Eldahdouh",
 		Email: "Akmal.Eldahdouh@salic.com",

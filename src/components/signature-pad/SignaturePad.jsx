@@ -5,6 +5,7 @@ import { AiOutlinePlus, AiOutlineMinus } from 'react-icons/ai';
 import SignatureCanvas from 'react-signature-canvas';
 import { Layer, Rect, Text } from 'react-konva';
 import { useStateContext } from '../../context/ContextProvider';
+import URLImage from '../../components/konva-components/URLImage';
 
 
 
@@ -60,7 +61,7 @@ export const SignaturePad = () => {
   return (
     <div>
       <Tooltip label="Signature Pad">
-        <Button colorScheme='blue' size='xs' onClick={onOpen}><FaSignature /></Button>
+        <Button colorScheme='orange' size='xs' onClick={onOpen}><FaSignature /></Button>
       </Tooltip>
       <Modal isOpen={isOpen} size="2xl" onClose={onModalClose}>
         <ModalOverlay />
@@ -134,7 +135,8 @@ export const Signatures = ({ pageNumber }) => {
       {
         signatures?.map(item => {
           if(pageNumber === item.page) {
-            return <Text key={item.key} x={200} y={200} text={"SIGNATURE " + item.key} draggable fontSize={22} />
+            // return <Text key={item.key} x={200} y={200} text={"SIGNATURE " + item.key} draggable fontSize={22} />
+            return <URLImage key={item.key} x={0} y={0} draggable src={item.imageData} />
           }
         })
       }

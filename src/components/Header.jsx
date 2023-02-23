@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useStateContext } from '../context/ContextProvider';
-import { Tooltip, Button, IconButton, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Th, Thead, Tr, useColorMode, useDisclosure, MenuDivider, scaleFadeConfig } from '@chakra-ui/react';
+import { Tooltip, Button, IconButton, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Th, Thead, Tr, useColorMode, useDisclosure, MenuDivider, scaleFadeConfig, useNumberInput, HStack, Input, useToast } from '@chakra-ui/react';
 import { TbFileInfo, TbLayoutSidebar, TbSettings } from 'react-icons/tb';
 import { FiRotateCcw, FiRotateCw, FiZoomIn, FiZoomOut } from 'react-icons/fi';
 import { MdDarkMode, MdOutlineImage, MdOutlineLightMode } from 'react-icons/md';
@@ -10,6 +10,7 @@ import { Kbd } from '@chakra-ui/react';
 import { RiArrowRightSLine, RiArrowLeftSLine } from 'react-icons/ri';
 import { BiChevronDown } from 'react-icons/bi';
 import { IoMdCheckmark } from 'react-icons/io';
+import { AiFillCaretDown, AiFillCaretUp } from 'react-icons/ai';
 
 const ToolbarBtn = ({ icon, canActive, title, handleClick, initStatus, className }) => {
   const [isActive, setIsActive] = useState(initStatus || false);
@@ -34,92 +35,58 @@ const ToolbarBtn = ({ icon, canActive, title, handleClick, initStatus, className
     </Tooltip>
   )
 }
-const DocumentInformation = ({ data, numOfPages }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  return (
-    <div>
-      <ToolbarBtn
-        icon={<TbFileInfo />}
-        title="Show Document Information"
-        handleClick={onOpen}
-      />
-      <Modal isOpen={isOpen} size="lg" onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Document Information</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <TableContainer>
-              <Table variant='simple'>
-                {/* <TableCaption>Imperial to metric conversion factors</TableCaption> */}
-                <Thead>
-                  <Tr>
-                    <Th>Inviter</Th>
-                    <Th>{/* Inviter Email */}</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  <Tr>
-                    <Td>{data.Name}</Td>
-                    <Td>{data.Email}</Td>
-                  </Tr>
-                </Tbody>
-              </Table>
 
-              <Table variant='simple'>
-                <Thead>
-                  <Tr>
-                    <Th>Date</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  <Tr>
-                    <Td>{data.inviteAt}</Td>
-                  </Tr>
-                </Tbody>
-              </Table>
-              <Table variant='simple'>
-                <Thead>
-                  <Tr>
-                    <Th>#Pages</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  <Tr>
-                    <Td>{numOfPages}</Td>
-                  </Tr>
-                </Tbody>
-              </Table>
-            </TableContainer>
+const DocumentNavigate = ({ pagesCount, value, handleChange }) => {
+  const { getInputProps, getIncrementButtonProps, getDecrementButtonProps } =
+  useNumberInput({
+    step: 1,
+    defaultValue: 1,
+    // value: value,
+    min: 1,
+    max: pagesCount || 1,
+    precision: 0,
+    onChange: handleChange
+  })
 
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={onClose}>
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </div>
-  );
-};
+const inc = getIncrementButtonProps()
+const dec = getDecrementButtonProps()
+const input = getInputProps()
 
+return (
+  <HStack maxW='150px'>
+    <Button {...inc}><AiFillCaretDown /></Button>
+    <Input {...input} style={{ padding: "0 10px" }} />
+    <Button {...dec}><AiFillCaretUp /></Button>
+  </HStack>
+)
+}
 
 const qualityOptions = [
   { label: "Low", value: 1 },
-  { label: "Normal", value: 2 },
+  { label: "Normal", tag: "Recommended", value: 2 },
   { label: "High", value: 3 },
 ];
 
 
 const Header = ({ docSchema }) => {
-  const { currentMode, scale, setMode, setActiveThumbnailes, handleFullScreen, handleRotateLeft, handleRotateRight, handleZoomIn, handleZoomOut, setZoom, activeThumbnailes } = useStateContext();
+  const { currentMode, scale, setMode, setActiveThumbnailes, pdfQuality, setPdfQuality, handleRotateLeft, handleRotateRight, handleZoomIn, handleZoomOut, setZoom, activeThumbnailes } = useStateContext();
   const { toggleColorMode } = useColorMode();
   const [isShowTools, setIsShowTools] = useState(false);
-  const [pdfQuality, setPdfQuality] = useState(2);
+  const toast = useToast();
 
+  useEffect(() => {
+    if(pdfQuality === 3) {
+      toast({
+        title: "Note, you have chosen the high quality of the document, in case the application is heavy, please choose a lower display quality.",
+        status: "warning",
+        isClosable: true,
+      })
+    } else {
+      toast.closeAll();
+    }
+  }, [pdfQuality]);
   const setScaleByParentWidth = () => {
-    const parentWidth = document.getElementById("pagesParentRef")?.clientWidth * 0.9;
+    const parentWidth = document.getElementById("pagesParentRef")?.clientWidth - 40;
     const firstPageWidth = docSchema.pages[0].width;
     const newScale = parentWidth / firstPageWidth;
     return newScale
@@ -204,7 +171,6 @@ const Header = ({ docSchema }) => {
         </div>
         {!isShowTools && <div className='flex gap-2'>
           <Menu>
-            <DocumentInformation data={docSchema.invitor} numOfPages={docSchema.numOfPages} />
             <MenuButton as={Button} aria-label='Options' rightIcon={<BiChevronDown />}>
               <span className='text-text-color dark:text-white text-2xl'>
                 <MdOutlineImage />
@@ -213,19 +179,13 @@ const Header = ({ docSchema }) => {
             <MenuList>
               {qualityOptions?.map((item, i) => (
                 <MenuItem key={i} onClick={() => setPdfQuality(item.value)} command={pdfQuality == item.value ? <IoMdCheckmark /> : null}>
-                  <span className={pdfQuality === item.value ? "font-semibold" : ""}>{item.label}</span>
+                  <span className={pdfQuality === item.value ? "font-semibold" : ""}>{item?.label} <span className='text-sm opacity-25'>{item.tag}</span></span>
                 </MenuItem>
               ))}
             </MenuList>
           </Menu>
-          <Menu>
-            <MenuButton as={Button} aria-label='Options'><TbSettings style={{ fontSize: "1.5rem" }} /></MenuButton>
-            <MenuList>
-              <MenuItem onClick={handleFullScreen} command={<Kbd>F11</Kbd>}>
-                Fullscreen
-              </MenuItem>
-            </MenuList>
-          </Menu>
+
+          {/* <DocumentNavigate pagesCount={docSchema.numOfPages} value={activePage} handleChange={p => goToPage(p)} /> */}
           <ToolbarBtn
             icon={currentMode === "dark" ? <MdDarkMode /> : <MdOutlineLightMode />}
             title={`Switch To ${currentMode === "dark" ? "Light" : "Dark"} Mode`}
