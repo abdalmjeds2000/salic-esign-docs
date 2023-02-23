@@ -211,8 +211,8 @@ const Header = ({ docSchema }) => {
               </span>
             </MenuButton>
             <MenuList>
-              {qualityOptions?.map(item => (
-                <MenuItem onClick={() => setPdfQuality(item.value)} command={pdfQuality == item.value ? <IoMdCheckmark /> : null}>
+              {qualityOptions?.map((item, i) => (
+                <MenuItem key={i} onClick={() => setPdfQuality(item.value)} command={pdfQuality == item.value ? <IoMdCheckmark /> : null}>
                   <span className={pdfQuality === item.value ? "font-semibold" : ""}>{item.label}</span>
                 </MenuItem>
               ))}

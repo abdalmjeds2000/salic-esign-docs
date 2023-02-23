@@ -9,6 +9,8 @@ export const ContextProvider = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(0);
+  const [signatures, setSignatures] = useState([]);
+  const [activePage, setActivePage] = useState(1);
 
 
 
@@ -67,6 +69,8 @@ export const ContextProvider = ({ children }) => {
       rotation, setRotation,
       goPage,
       handleFullScreen,
+      signatures, setSignatures,
+      activePage, setActivePage
     }}>
       {children}
     </StateContext.Provider>

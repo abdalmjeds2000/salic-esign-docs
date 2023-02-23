@@ -8,6 +8,8 @@ import { Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spinner, Tooltip }
 import { Stage, Layer, Rect, Text, Circle } from 'react-konva';
 import ToolsHeader from "../components/ToolsHeader";
 import useOnScreen from "../hooks/useOnScreen";
+import { Signatures } from "../components/signature-pad/SignaturePad";
+import axios from "axios";
 
 
   function SliderThumbs({ getSliderValue }) {
@@ -45,7 +47,7 @@ import useOnScreen from "../hooks/useOnScreen";
     )
   }
   const Thumbs = ({ pages, actions }) => {
-    const [activePage, setActivePage] = useState(1);
+    const { activePage, setActivePage } = useStateContext();
     const [sliderValue, setSliderValue] = React.useState(3);
 
     return (
@@ -108,7 +110,7 @@ import useOnScreen from "../hooks/useOnScreen";
 
   const Page = ({item, totalPages}) => {
     const pageRef = useRef();
-    const { scale, rotation } = useStateContext();
+    const { scale, rotation, setActivePage } = useStateContext();
     const [isReady, setIsReady] = useState(false);
     const [imgData, setImgData] = useState({});
     const [loading, setLoading] = useState(true);
@@ -117,11 +119,9 @@ import useOnScreen from "../hooks/useOnScreen";
 
     const fetchPage = async () => {
       setLoading(true);
-
-      await wait(1000);
       setImgData({ 
-        src: require(`../assets/images/imagesfile/Logotype ( PDFDrive )_page-${item.Index.toString().padStart(4, '0')}.jpg`),
-        // src: require(`../assets/images/imagesfile/Logotype ( PDFDrive )-1.svg`),
+        // src: require(`../assets/images/imagesfile/Logotype ( PDFDrive )_page-${item.Index.toString().padStart(4, '0')}.jpg`),
+        src: 'https://salicapi.com/api/Signature/GetPage?Page=' + (item.Index-1),
         index: item.Index, 
         size: "1MB", 
         alt: "", 
@@ -145,32 +145,37 @@ import useOnScreen from "../hooks/useOnScreen";
       }
     }, [isOnScreen, isReady]);
     useEffect(() => {
-      if(isOnScreen && !isReady && timer > 3) {
+      if(isOnScreen && !isReady && timer >= 3) {
         fetchPage();
       }
-    }, [isOnScreen, timer]);
-    // useEffect(() => {
-    //   console.log(item.Index, "timer", timer);
-    // }, [timer]);
+      if(isOnScreen && timer >= 1) {
+        console.log(item.Index);
+        setActivePage(item.Index);
+        // const element = document.getElementById(`thumb_${item.Index}`);
+        // if (element) element.scrollIntoView({ behavior: "smooth" });
+      }
 
-    const Drawing = () => (
-      <Stage width={item.width * scale} height={item.height * scale} scale={{x: scale, y: scale}} style={{ position: "absolute", top: 0, left: 0 }}>
-        <Layer>
-          <Rect x={25} y={25} width={50} height={50} fill="#0035c6" onClick={() => alert("you are clicked on rectangle")} shadowBlur={10} shadowOpacity={.5} />
-          <Circle
-            x={70}
-            y={70}
-            draggable
-            radius={25}
-            fill="#00c6c6"
-            onClick={() => alert("you are clicked on Circle")}
-            pointer
-          />
-          <Text x={100} y={40} text="This is try to Draw Text" draggable fontSize={22} />
-          <Text x={350} y={40} text={"#" + item.Index} fontSize={22} />
-        </Layer>
-      </Stage>
-    )
+    }, [isOnScreen, timer]);
+
+    // const Drawing = () => (
+    //   <Stage width={item.width * scale} height={item.height * scale} scale={{x: scale, y: scale}} style={{ position: "absolute", top: 0, left: 0 }}>
+    //     <Layer>
+    //       <Rect x={25} y={25} width={50} height={50} fill="#0035c6" onClick={() => alert("you are clicked on rectangle")} shadowBlur={10} shadowOpacity={.5} />
+    //       <Circle
+    //         x={70}
+    //         y={70}
+    //         draggable
+    //         radius={25}
+    //         fill="#00c6c6"
+    //         onClick={() => alert("you are clicked on Circle")}
+    //         pointer
+    //       />
+    //       <Text x={100} y={40} text="This is try to Draw Text" draggable fontSize={22} />
+    //       <Text x={350} y={40} text={"#" + item.Index} fontSize={22} />
+    //     </Layer>
+    //     {/* <Signatures pageNumber={item.Index} /> */}
+    //   </Stage>
+    // )
     
     return (
       <div key={item.Index} ref={pageRef} id={`page_${item.Index}`} className={`page-item mb-10 transition-all ${isReady ? "opacity-100" : "opacity-25"}`}>
@@ -182,8 +187,11 @@ import useOnScreen from "../hooks/useOnScreen";
             !loading
             ? (
               <>
-                <Drawing />
-                <img src={imgData.src} alt={imgData.alt} width={imgData.width * scale} height={imgData.height * scale} />
+                {/* <Drawing /> */}
+                <img 
+                  src={imgData.src} alt=""
+                  width={imgData.width * scale} height={imgData.height * scale} 
+                />
               </>
             ) : (
               <div className="flex justify-center mt-14"><Spinner size='md' /></div>
