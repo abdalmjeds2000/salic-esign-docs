@@ -5,7 +5,7 @@ import { useStateContext } from "../context/ContextProvider";
 import { docSchema } from "../data/docSchema";
 import { SignaturePad } from "./signature-pad/SignaturePad";
 
-const DocumentInformation = ({ data, numOfPages }) => {
+const DocumentInformation = ({ dataSchema, numOfPages }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   return (
     <div>
@@ -20,7 +20,6 @@ const DocumentInformation = ({ data, numOfPages }) => {
           <ModalBody>
             <TableContainer>
               <Table variant='simple'>
-                {/* <TableCaption>Imperial to metric conversion factors</TableCaption> */}
                 <Thead>
                   <Tr>
                     <Th>Inviter</Th>
@@ -29,8 +28,22 @@ const DocumentInformation = ({ data, numOfPages }) => {
                 </Thead>
                 <Tbody>
                   <Tr>
-                    <Td>{data.Name}</Td>
-                    <Td>{data.Email}</Td>
+                    <Td>{dataSchema?.invitee?.Name}</Td>
+                    <Td>{dataSchema?.invitee?.Email}</Td>
+                  </Tr>
+                </Tbody>
+              </Table>
+              <Table variant='simple'>
+                <Thead>
+                  <Tr>
+                    <Th>Invitee</Th>
+                    <Th>{/* Inviter Email */}</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  <Tr>
+                    <Td>{dataSchema?.invitor?.Name}</Td>
+                    <Td>{dataSchema?.invitor?.Email}</Td>
                   </Tr>
                 </Tbody>
               </Table>
@@ -38,12 +51,12 @@ const DocumentInformation = ({ data, numOfPages }) => {
               <Table variant='simple'>
                 <Thead>
                   <Tr>
-                    <Th>Date</Th>
+                    <Th>Invite Date</Th>
                   </Tr>
                 </Thead>
                 <Tbody>
                   <Tr>
-                    <Td>{data.inviteAt}</Td>
+                    <Td>{dataSchema?.invitor?.inviteAt}</Td>
                   </Tr>
                 </Tbody>
               </Table>
@@ -51,11 +64,13 @@ const DocumentInformation = ({ data, numOfPages }) => {
                 <Thead>
                   <Tr>
                     <Th>#Pages</Th>
+                    <Th>#Signatures</Th>
                   </Tr>
                 </Thead>
                 <Tbody>
                   <Tr>
                     <Td>{numOfPages}</Td>
+                    <Td>{docSchema.numOfActions}</Td>
                   </Tr>
                 </Tbody>
               </Table>
@@ -99,7 +114,7 @@ const ToolsHeader = ({ actions }) => {
         <div className="h-full flex justify-between items-center overflow-auto">
           <div className="flex justify-center items-center gap-1">
             <SettingsMenu />
-            <DocumentInformation data={docSchema.invitor} numOfPages={docSchema.numOfPages} />
+            <DocumentInformation dataSchema={docSchema} numOfPages={docSchema.numOfPages} />
             <span className="ml-1"><SignaturePad /></span>
           </div>
 

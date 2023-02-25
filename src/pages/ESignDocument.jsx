@@ -176,7 +176,7 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
     )
     
     return (
-      <div key={item.Index} ref={pageRef} id={`page_${item.Index}`} className={`page-item mb-10 transition-all ${isReady ? "opacity-100" : "opacity-25"}`}>
+      <div key={item.Index} ref={pageRef} id={`page_${item.Index}`} className={`page-item mb-6 transition-all ${isReady ? "opacity-100" : "opacity-25"}`}>
         <div 
           className="text-9xl shadow-lg bg-white rounded-sm overflow-hidden text-text-color" 
           style={{width: item.width * scale, height: item.height * scale, transform: `rotate(${rotation}deg)`}}
@@ -197,8 +197,8 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
             )
           }
         </div>
-        <div className='flex justify-between'>
-          <p className="text-sm">file.png</p>
+        <div className='flex justify-between mt-2'>
+          <p className="text-sm">78d11272-86b3-49fe-a3d5-284ecf48ec01</p>
           <p className="text-sm">{item.Index} / {totalPages}</p>
         </div>
       </div>

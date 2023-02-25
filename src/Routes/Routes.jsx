@@ -11,8 +11,9 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path='/' element={<Navigate to="/file" />} />
-      <Route path='/file' element={isAllowShowDoc ? <ESignDocument /> : <OTP />} />
+      <Route path='/file' element={isAllowShowDoc ? <ESignDocument /> : <Navigate to="/check" />} />
       <Route path='/404-file' element={<File404 />} />
+      <Route path='/check' element={isAllowShowDoc ? <Navigate to="/file" /> : <OTP />} />
     </Routes>
   )
 }

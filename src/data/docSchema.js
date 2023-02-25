@@ -4,15 +4,15 @@ export var docSchema = {
 	size: "12mb",
 	numOfPages: 100,
 	invitor: {
-		Name: "Akmal Eldahdouh",
-		Email: "Akmal.Eldahdouh@salic.com",
+		Name: "SALIC Guest",
+		Email: "SALIC.Guest@salic.com",
 		inviteAt: "1/31/2023",
 	},
 	invitee: {
 		Name: "Akmal Eldahdouh",
 		Email: "Akmal.Eldahdouh@salic.com",
 	},
-	numOfActions: 3,
+	numOfActions: 6,
 	actions: [
 		{
 			type: "date",
