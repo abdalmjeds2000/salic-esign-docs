@@ -25,7 +25,7 @@ const OTP = () => {
 
   return (
     <div className='flex flex-col w-screen h-screen overflow-auto bg-white dark:bg-third-dark-bg'>
-      <div className='relative right-0 top-0 w-full h-16 pt-3 px-6 pb-6 bg-gradient-to-b from-neutral-300 dark:from-neutral-900 dark:bg-transparent'>
+      {/* <div className='relative right-0 top-0 w-full h-16 pt-3 px-6 pb-6 bg-gradient-to-b from-neutral-300 dark:from-neutral-900 dark:bg-transparent'>
         <div className='flex justify-between max-w-[1600px] mx-auto'>
           <div>
             <img 
@@ -45,7 +45,7 @@ const OTP = () => {
             {currentMode === "dark" ? <MdDarkMode /> : <MdOutlineLightMode />}
           </Button>
         </div>
-      </div>
+      </div> */}
 
 
       <div className='p-10 max-md:px-4'>  

@@ -3,15 +3,14 @@ import { useStateContext } from "../context/ContextProvider";
 import Header from "../components/Header";
 import { docSchema } from "../data/docSchema";
 import { Scrollbars } from 'react-custom-scrollbars-2';
-import { Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spinner, Tooltip } from "@chakra-ui/react";
+import { Skeleton, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spinner, Stack, Tooltip } from "@chakra-ui/react";
 import ToolsHeader from "../components/ToolsHeader";
 import useOnScreen from "../hooks/useOnScreen";
 import { Signatures } from "../components/signature-pad/SignaturePad";
-import wait from "waait";
 
 
   function SliderThumbs({ getSliderValue }) {
-    const [sliderValue, setSliderValue] = React.useState(3);
+    const [sliderValue, setSliderValue] = React.useState(2);
     const [showTooltip, setShowTooltip] = React.useState(false);
 
     useEffect(() => {
@@ -53,20 +52,31 @@ import wait from "waait";
     const [loading, setLoading] = useState(true);
     const [isReady, setIsReady] = useState(false);
     const isOnScreen = useOnScreen(thumbRef);
+    const [timer, setTimer] = useState(0);
 
     const fetchPage = async () => {
       setLoading(true);
-      await wait(2000);
       setIsReady(true);
       setLoading(false);
     }
 
     useEffect(() => {
-      if(isOnScreen && !isReady) {
+      if(!isReady) {
+        const counter = setInterval(() => {
+          if(isOnScreen) {
+            setTimer(prev => prev += 1);
+          } else {
+            setTimer(0);
+          }
+        }, 500);
+        return () => clearInterval(counter);
+      }
+    }, [isOnScreen, isReady]);
+    useEffect(() => {
+      if(isOnScreen && !isReady && timer > 2) {
         fetchPage();
       }
-    }, [isOnScreen]);
-
+    }, [isOnScreen, timer]);
 
     return (
       <div 
@@ -85,20 +95,18 @@ import wait from "waait";
           className={`thumb-body relative rounded-sm overflow-hidden bg-white shadow-xl ${activePage === item.Index && "outline outline-4 outline-slate-400 dark:outline-slate-400"}`} 
           style={{width: (item.width / 4) * (sliderValue * 0.5), height: (item.height / 4) * (sliderValue * 0.5)}}
         >
-          {
-            !loading
-            ? (
-              <>
-                <img 
-                  src={`https://salicapi.com/api/Signature/GetThumbnailPage?Page=${item.Index-1}`} alt=""
-                  width="100%" height="100%" 
-                  loading="lazy"
-                />
-              </>
-            ) : (
-              <div>sad</div>
-            )
-          }
+          <Skeleton
+            height='100%'
+            isLoaded={!loading}
+            fadeDuration={2}
+            bg='white'
+          >
+            {!loading && <img 
+              src={`https://salicapi.com/api/Signature/GetThumbnailPage?Page=${item.Index-1}`} alt=""
+              width="100%" height="100%" 
+              loading="lazy"
+            />}
+          </Skeleton>
         </div>
         <div className={`thumb-footer text-text-color dark:text-white ${activePage === item.Index ? "text-slate-500 font-semibold" : ""}`}>
           {item.Index}
@@ -108,7 +116,6 @@ import wait from "waait";
   }
   const Thumbs = ({ pages, actions }) => {
     const [sliderValue, setSliderValue] = React.useState(3);
-
 
     return (
       <div className='w-80 bg-neutral-200 drop-shadow-lg border-r-4 border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 flex-col overflow-hidden resize-x p-4 hidden md:flex'>

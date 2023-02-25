@@ -466,7 +466,7 @@ export var docSchema = {
 		},{
 			width: 584,
 			height: 775,
-			Index: 854,
+			Index: 85,
 			isLoaded: false,
 		},{
 			width: 584,
