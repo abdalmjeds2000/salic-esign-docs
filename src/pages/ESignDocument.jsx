@@ -89,11 +89,11 @@ import wait from "waait";
             !loading
             ? (
               <>
-                {/* <img 
+                <img 
                   src={`https://salicapi.com/api/Signature/GetThumbnailPage?Page=${item.Index-1}`} alt=""
                   width="100%" height="100%" 
                   loading="lazy"
-                /> */}
+                />
               </>
             ) : (
               <div>sad</div>
