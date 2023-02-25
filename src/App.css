@@ -7,6 +7,9 @@ body {
 }
 
 
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 
 .sigCanvas {
   background-color: #eee;  

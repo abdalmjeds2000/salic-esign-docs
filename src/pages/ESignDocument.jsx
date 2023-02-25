@@ -4,10 +4,10 @@ import Header from "../components/Header";
 import { docSchema } from "../data/docSchema";
 import { Scrollbars } from 'react-custom-scrollbars-2';
 import { Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spinner, Tooltip } from "@chakra-ui/react";
-import { Stage, Layer, Rect, Text, Circle } from 'react-konva';
 import ToolsHeader from "../components/ToolsHeader";
 import useOnScreen from "../hooks/useOnScreen";
 import { Signatures } from "../components/signature-pad/SignaturePad";
+import wait from "waait";
 
 
   function SliderThumbs({ getSliderValue }) {
@@ -24,10 +24,10 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
         <Slider
           id='slider'
           defaultValue={sliderValue}
-          min={2}
-          max={6}
-          step={2}
-          onChange={(v) => setSliderValue(v)}
+          min={1}
+          max={3}
+          step={1}
+          onChange={setSliderValue}
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
         >
@@ -45,8 +45,68 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
       </div>
     )
   }
-  const Thumbs = ({ pages, actions }) => {
+
+  const Thumb = ({ item, sliderValue }) => {
     const { activePage, setActivePage } = useStateContext();
+
+    const thumbRef = useRef();
+    const [loading, setLoading] = useState(true);
+    const [isReady, setIsReady] = useState(false);
+    const isOnScreen = useOnScreen(thumbRef);
+
+    const fetchPage = async () => {
+      setLoading(true);
+      await wait(2000);
+      setIsReady(true);
+      setLoading(false);
+    }
+
+    useEffect(() => {
+      if(isOnScreen && !isReady) {
+        fetchPage();
+      }
+    }, [isOnScreen]);
+
+
+    return (
+      <div 
+        key={item.Index} 
+        id={`thumb_${item.Index}`} 
+        ref={thumbRef}
+        className={`thumb-item flex flex-col items-center w-fit h-fit transition-all cursor-pointer bg-neutral-300 dark:bg-neutral-900 dark:bg-opacity-25 bg-opacity-25 dark:hover:bg-opacity-100 hover:bg-opacity-100 ${activePage === item.Index ? "bg-opacity-100 dark:bg-opacity-100" : ""} p-4 pb-1 rounded-lg`}
+        onClick={() => {
+          setActivePage(item.Index);
+          const element = document.getElementById(`page_${item.Index}`);
+          if (element) element.scrollIntoView({ behavior: "smooth" });
+        }}
+      >
+        <div className="thumb-head"></div>
+        <div 
+          className={`thumb-body relative rounded-sm overflow-hidden bg-white shadow-xl ${activePage === item.Index && "outline outline-4 outline-slate-400 dark:outline-slate-400"}`} 
+          style={{width: (item.width / 4) * (sliderValue * 0.5), height: (item.height / 4) * (sliderValue * 0.5)}}
+        >
+          {
+            !loading
+            ? (
+              <>
+                {/* <img 
+                  src={`https://salicapi.com/api/Signature/GetThumbnailPage?Page=${item.Index-1}`} alt=""
+                  width="100%" height="100%" 
+                  loading="lazy"
+                /> */}
+              </>
+            ) : (
+              <div>sad</div>
+            )
+          }
+        </div>
+        <div className={`thumb-footer text-text-color dark:text-white ${activePage === item.Index ? "text-slate-500 font-semibold" : ""}`}>
+          {item.Index}
+        </div>
+      </div>
+    )
+  }
+  const Thumbs = ({ pages, actions }) => {
     const [sliderValue, setSliderValue] = React.useState(3);
 
 
@@ -60,47 +120,8 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
           <div className='thumbs-body flex justify-center flex-wrap gap-y-4 gap-x-2'>
             {
               pages?.map((item) => {
-                const pageActions = actions?.filter(a => a.page === item.Index);
                 return (
-                  <div 
-                    key={item.Index} 
-                    id={`thumb_${item.Index}`} 
-                    className={`thumb-item flex flex-col items-center w-fit h-fit transition-all cursor-pointer bg-neutral-300 dark:bg-neutral-900 dark:bg-opacity-25 bg-opacity-25 dark:hover:bg-opacity-100 hover:bg-opacity-100 ${activePage === item.Index ? "bg-opacity-100 dark:bg-opacity-100" : ""} p-4 pb-1 rounded-lg`}
-                    onClick={() => {
-                      setActivePage(item.Index);
-                      const element = document.getElementById(`page_${item.Index}`);
-                      if (element) element.scrollIntoView({ behavior: "smooth" });
-                    }}
-                  >
-                    <div className="thumb-head"></div>
-                    <div 
-                      className={`thumb-body relative rounded-sm overflow-hidden bg-white shadow-xl ${activePage === item.Index && "outline outline-4 outline-slate-400 dark:outline-slate-400"}`} 
-                      style={{width: (item.width / 4) * (sliderValue * 0.25), height: (item.height / 4) * (sliderValue * 0.25)}}
-                    >
-                      {/* <div className="overlay_layer p-2 absolute w-full h-full flex flex-col justify-end items-center overflow-hidden" style={{ background: pageActions.length > 0 ? "linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.15) 100%)" : "" }}>
-                        <Tooltip label={`Actions for #${item.Index} page`} openDelay={500} fontSize="small">
-                          <div className="thumb-actions flex gap-1 flex-wrap mb-1">
-                            {pageActions?.map((action, i) => {
-                              return (
-                                <span key={i} className={`w-5 h-5 rounded-md ${action.isSigned ? "bg-green-600" : "bg-red-600"} flex justify-center items-center text-xs text-white`}>
-                                  {i+1}
-                                </span>
-                              )
-                            })}
-                          </div>
-                        </Tooltip>
-                      </div> */}
-
-                      <img 
-                        src={`https://salicapi.com/api/Signature/GetThumbnailPage?Page=${item.Index+1}`} alt=""
-                        width="100%" height="100%" 
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className={`thumb-footer text-text-color dark:text-white ${activePage === item.Index ? "text-slate-500 font-semibold" : ""}`}>
-                      {item.Index}
-                    </div>
-                  </div>
+                  <Thumb item={item} sliderValue={sliderValue} />
                 )
               })
             }
@@ -159,6 +180,7 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
       }
 
     }, [isOnScreen, timer]);
+    // to refetch images after user change pdf quality
     useEffect(() => {
       setIsReady(false);
     }, [pdfQuality]);
@@ -243,7 +265,7 @@ const ESignDocument = () => {
       <Header docSchema={documentSchema} />
       <ToolsHeader actions={documentSchema.actions} />
 
-      <main className="flex flex-1 h-full pt-[5.5rem] md:pt-[6.5rem]">
+      <main className="flex flex-1 h-full pt-[5.5rem]">
         {activeThumbnailes && <Thumbs pages={documentSchema.pages} actions={documentSchema.actions} />}
         <Document pages={documentSchema.pages} />
       </main>

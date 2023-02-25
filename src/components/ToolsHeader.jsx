@@ -1,4 +1,4 @@
-import { Button, Kbd, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Th, Thead, Tooltip, Tr, useDisclosure } from "@chakra-ui/react";
+import { Button, Kbd, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tooltip, Tr, useDisclosure } from "@chakra-ui/react";
 import React from "react";
 import { TbFileInfo, TbSettings } from "react-icons/tb";
 import { useStateContext } from "../context/ContextProvider";
@@ -10,7 +10,7 @@ const DocumentInformation = ({ dataSchema, numOfPages }) => {
   return (
     <div>
       <Tooltip label="Show Document Information">
-        <Button colorScheme='purple' size='xs' onClick={onOpen}><TbFileInfo size={16} /></Button>
+        <Button colorScheme='purple' variant="outline" size='xs' onClick={onOpen}><TbFileInfo size={16} /></Button>
       </Tooltip>
       <Modal isOpen={isOpen} size="lg" onClose={onClose}>
         <ModalOverlay />
@@ -19,6 +19,20 @@ const DocumentInformation = ({ dataSchema, numOfPages }) => {
           <ModalCloseButton />
           <ModalBody>
             <TableContainer>
+              <Table variant='simple'>
+                <Thead>
+                  <Tr>
+                    <Th>Document Name</Th>
+                    <Th>Invite Title</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  <Tr>
+                    <Td>{docSchema?.name}</Td>
+                    <Td>{docSchema?.title}</Td>
+                  </Tr>
+                </Tbody>
+              </Table>
               <Table variant='simple'>
                 <Thead>
                   <Tr>
@@ -74,6 +88,21 @@ const DocumentInformation = ({ dataSchema, numOfPages }) => {
                   </Tr>
                 </Tbody>
               </Table>
+
+              <Table variant='simple'>
+                <Thead>
+                  <Tr>
+                    <Th>Invite Description</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  <Tr>
+                    <Td style={{ whiteSpace: "normal" }}>
+                      <Text >{docSchema?.description}</Text>
+                    </Td>
+                  </Tr>
+                </Tbody>
+              </Table>
             </TableContainer>
 
           </ModalBody>
@@ -92,7 +121,7 @@ const SettingsMenu = ({ data, numOfPages }) => {
   return (
     <Menu size='xs'>
       <MenuButton >
-        <Button colorScheme='blackAlpha' className="dark:bg-gray-600" size='xs'><TbSettings className="dark:text-white" size={16} /></Button>
+        <Button colorScheme='blackAlpha' variant="outline" className="dark:bg-gray-600" size='xs'><TbSettings className="dark:text-white" size={16} /></Button>
       </MenuButton>
       <MenuList>
         <MenuItem onClick={handleFullScreen} command={<Kbd>F11</Kbd>}>
@@ -109,13 +138,13 @@ const SettingsMenu = ({ data, numOfPages }) => {
 const ToolsHeader = ({ actions }) => {
 
   return (
-    <div className="fixed top-14 md:top-16 shadow-2xl dark:drop-shadow-xl z-[9] w-full">
-      <div className="h-10 md:h-10 px-3 py-0 md:px-6 bg-[#f0f2f4] dark:bg-secondary-dark-bg dark:text-white text-text-color">
+    <div className="fixed top-14 shadow-2xl dark:drop-shadow-xl z-[9] w-full">
+      <div className="h-9 px-3 py-0 md:px-6 bg-[#f0f2f4] dark:bg-secondary-dark-bg dark:text-white text-text-color">
         <div className="h-full flex justify-between items-center overflow-auto">
           <div className="flex justify-center items-center gap-1">
             <SettingsMenu />
             <DocumentInformation dataSchema={docSchema} numOfPages={docSchema.numOfPages} />
-            <span className="ml-1"><SignaturePad /></span>
+            <span className="ml-2"><SignaturePad /></span>
           </div>
 
           {/* <div className='flex gap-2 items-center'>

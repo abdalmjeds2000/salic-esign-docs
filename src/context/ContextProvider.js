@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import { useToast } from '@chakra-ui/react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const StateContext = createContext();
 
@@ -12,9 +13,8 @@ export const ContextProvider = ({ children }) => {
   const [signatures, setSignatures] = useState([]);
   const [activePage, setActivePage] = useState(1);
   const [pdfQuality, setPdfQuality] = useState(2);
-
   const [isAllowShowDoc, setIsAllowShowDoc] = useState(false);
-
+  const toast = useToast();
 
 
 

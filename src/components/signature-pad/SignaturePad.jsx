@@ -73,7 +73,7 @@ export const SignaturePad = () => {
   return (
     <div>
       <Tooltip label="Signature Pad">
-        <Button colorScheme='orange' size='xs' onClick={onOpen}><FaSignature /></Button>
+        <Button colorScheme='orange' variant="outline" size='xs' onClick={onOpen}><FaSignature /></Button>
       </Tooltip>
       <Modal isOpen={isOpen} size="2xl" onClose={onModalClose}>
         <ModalOverlay />

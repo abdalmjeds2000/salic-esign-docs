@@ -11,6 +11,7 @@ import { RiArrowRightSLine, RiArrowLeftSLine } from 'react-icons/ri';
 import { BiChevronDown } from 'react-icons/bi';
 import { IoMdCheckmark } from 'react-icons/io';
 import { AiFillCaretDown, AiFillCaretUp } from 'react-icons/ai';
+import Scrollbars from 'react-custom-scrollbars-2';
 
 const ToolbarBtn = ({ icon, canActive, title, handleClick, initStatus, className }) => {
   const [isActive, setIsActive] = useState(initStatus || false);
@@ -27,9 +28,9 @@ const ToolbarBtn = ({ icon, canActive, title, handleClick, initStatus, className
               handleClick();
             }
           }}
-          className={`hover:bg-active-color hover:dark:bg-gray-500 hover:text-active-color text-text-color dark:text-white h-10 w-10 rounded-md active:scale-95 transition-all  ${isActive ? 'bg-active-color text-active-color dark:text-text-color dark:hover:text-white' : ''} `}
+          className={`hover:bg-active-color hover:dark:bg-gray-500 hover:text-active-color text-text-color dark:text-white h-9 w-9 rounded-md active:scale-95 transition-all  ${isActive ? 'bg-active-color text-active-color dark:text-text-color dark:hover:text-white' : ''} `}
         >
-          <span className='flex align-middle justify-center text-2xl'>{icon}</span>
+          <span className='flex align-middle justify-center text-xl'>{icon}</span>
         </button>
       </span>
     </Tooltip>
@@ -69,7 +70,7 @@ const qualityOptions = [
 
 
 const Header = ({ docSchema }) => {
-  const { currentMode, scale, setMode, setActiveThumbnailes, pdfQuality, setPdfQuality, handleRotateLeft, handleRotateRight, handleZoomIn, handleZoomOut, setZoom, activeThumbnailes } = useStateContext();
+  const { currentMode, scale, setMode, setActiveThumbnailes, activeThumbnailes, pdfQuality, setPdfQuality, handleRotateLeft, handleRotateRight, handleZoomIn, handleZoomOut, setZoom } = useStateContext();
   const { toggleColorMode } = useColorMode();
   const [isShowTools, setIsShowTools] = useState(false);
   const toast = useToast();
@@ -97,7 +98,7 @@ const Header = ({ docSchema }) => {
   }, [activeThumbnailes]);
 
   const ViewerTools = () => (
-    <div className='flex gap-2'>
+    <div className='flex items-center gap-1'>
       <ToolbarBtn
         icon={<FiRotateCcw />}
         title="Rotate Counterclockwise"
@@ -116,7 +117,7 @@ const Header = ({ docSchema }) => {
       />
       <div>
         <Menu>
-          <MenuButton as={Button} rightIcon={<BiChevronDown />}>
+          <MenuButton as={Button} bg="transparent" rightIcon={<BiChevronDown />}>
             {Math.round(scale*100)}%
           </MenuButton>
           <MenuList>
@@ -134,6 +135,20 @@ const Header = ({ docSchema }) => {
         title="Zoom In"
         handleClick={handleZoomIn}
       />
+      <Menu>
+        <MenuButton as={Button} bg="transparent" rightIcon={<BiChevronDown />}>
+          <span className='text-text-color dark:text-white text-2xl'>
+            <MdOutlineImage />
+          </span>
+        </MenuButton>
+        <MenuList>
+          {qualityOptions?.map((item, i) => (
+            <MenuItem key={i} onClick={() => setPdfQuality(item.value)} command={pdfQuality == item.value ? <IoMdCheckmark /> : null}>
+              <span className={pdfQuality === item.value ? "font-semibold" : ""}>{item?.label} <span className='text-sm opacity-25'>{item.tag}</span></span>
+            </MenuItem>
+          ))}
+        </MenuList>
+      </Menu>
     </div>
   );
 
@@ -141,51 +156,35 @@ const Header = ({ docSchema }) => {
 
 
   return (
-    <header className='fixed top-0 w-full border-b-2 border-gray-200 dark:border-gray-800 z-10 h-14 md:h-16'>
-      <div className='flex justify-between w-full h-full px-3 py-0 md:px-6 md:py-3 items-center bg-[#e7ebee] dark:bg-main-dark-bg'>
-        <div className='flex gap-2'>
+    <header className='fixed top-0 w-full border-b-2 border-gray-200 dark:border-gray-800 z-10 h-14 md:h-14'>
+      <div className='flex justify-between w-full h-full px-3 py-0 md:px-6 md:py-1 items-center bg-[#e7ebee] dark:bg-main-dark-bg overflow-x-auto hide-scrollbar'>
+        <div className='flex items-center gap-2'>
           <div className='hidden md:block mr-4'>
             <ToolbarBtn
               icon={<TbLayoutSidebar />}
               title="Panel"
               handleClick={() => setActiveThumbnailes(prev => !prev)}
               canActive
-              initStatus={true}
+              initStatus={activeThumbnailes}
             />
           </div>
-
-          <div className='hidden md:flex'>
-            <ViewerTools />
-          </div>
-          <div className='flex md:hidden mr-4'>
+          <div className='flex items-center md:hidden mr-4'>
             <ToolbarBtn
               icon={isShowTools ? <RiArrowRightSLine /> : <RiArrowLeftSLine />}
               title="Viewer Tools"
               handleClick={() => setIsShowTools(prev => !prev)}
+              className="mr-4"
             />
             {isShowTools ? <ViewerTools /> : null}
           </div>
         </div>
-        <div>
-          <img src={logo} alt="logo" className="hidden md:block" style={{ height: 30, filter: currentMode === "dark" ? "grayscale(1) invert(1)" : "" }} />
+        <div className='hidden md:flex'>
+          {/* <img src={logo} alt="logo" className="hidden md:block" style={{ height: 30, filter: currentMode === "dark" ? "grayscale(1) invert(1)" : "" }} /> */}
+          {!isShowTools && <div className='flex items-center gap-2'>
+          <ViewerTools />
+        </div>}
         </div>
-        {!isShowTools && <div className='flex gap-2'>
-          <Menu>
-            <MenuButton as={Button} aria-label='Options' rightIcon={<BiChevronDown />}>
-              <span className='text-text-color dark:text-white text-2xl'>
-                <MdOutlineImage />
-              </span>
-            </MenuButton>
-            <MenuList>
-              {qualityOptions?.map((item, i) => (
-                <MenuItem key={i} onClick={() => setPdfQuality(item.value)} command={pdfQuality == item.value ? <IoMdCheckmark /> : null}>
-                  <span className={pdfQuality === item.value ? "font-semibold" : ""}>{item?.label} <span className='text-sm opacity-25'>{item.tag}</span></span>
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
-
-          {/* <DocumentNavigate pagesCount={docSchema.numOfPages} value={activePage} handleChange={p => goToPage(p)} /> */}
+        {!isShowTools && 
           <ToolbarBtn
             icon={currentMode === "dark" ? <MdDarkMode /> : <MdOutlineLightMode />}
             title={`Switch To ${currentMode === "dark" ? "Light" : "Dark"} Mode`}
@@ -194,7 +193,7 @@ const Header = ({ docSchema }) => {
               toggleColorMode();
             }}
           />
-        </div>}
+        }
       </div>
     </header>
   )
