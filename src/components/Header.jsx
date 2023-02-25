@@ -62,9 +62,9 @@ return (
 }
 
 const qualityOptions = [
-  { label: "Low", value: 1 },
-  { label: "Normal", tag: "Recommended", value: 2 },
-  { label: "High", value: 3 },
+  { label: "Low", tag: null, value: 1 },
+  { label: "Normal", tag: null, value: 2 },
+  { label: "High", tag: null, value: 3 },
 ];
 
 

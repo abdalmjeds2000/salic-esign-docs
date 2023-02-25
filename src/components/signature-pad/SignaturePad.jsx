@@ -1,9 +1,9 @@
-import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Radio, Stack, Tooltip, useDisclosure, useRadio, useRadioGroup } from '@chakra-ui/react';
-import React, { useReducer, useRef, useState } from 'react';
+import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Radio, Stack, Tooltip, useDisclosure, useRadio, useRadioGroup, useToast } from '@chakra-ui/react';
+import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { FaSignature } from 'react-icons/fa';
 import { AiOutlinePlus, AiOutlineMinus } from 'react-icons/ai';
 import SignatureCanvas from 'react-signature-canvas';
-import { Layer, Rect, Text } from 'react-konva';
+import { Layer, Stage } from 'react-konva';
 import { useStateContext } from '../../context/ContextProvider';
 import URLImage from '../../components/konva-components/URLImage';
 
@@ -35,27 +35,39 @@ export const SignaturePad = () => {
   const signatureCanvasRef = useRef();
   const [penWidth, dispatchPW] = useReducer(reducerPenWidth, 4);
   const [penColor, setPenColor] = useState("#000000");
-  const [allowCreate, setAllowCreate] = useState(false);
+  const toast = useToast();
   
 
   const clear = () => {
-    signatureCanvasRef.current.clear()
-    setAllowCreate(false);
+    signatureCanvasRef.current.clear();
   }
   const onModalClose = () => {
-    setAllowCreate(false);
     onClose();
   }
   const handleCreateSignature = () => {
-    const item = {
-      key: signatures.length + 1,
-      page: activePage,
-      imageData: signatureCanvasRef.current.getTrimmedCanvas().toDataURL('image/png'),
-      x: 200, 
-      y: 200,
-    };
-    setSignatures(prev => [...prev, item]);
-    onModalClose();
+    if(!signatureCanvasRef.current.isEmpty()) {
+      const canvasWidth = signatureCanvasRef.current.getCanvas().width;
+      const canvasHeight = signatureCanvasRef.current.getCanvas().height;
+      const item = {
+        _id: signatures.length + 1,
+        page: activePage,
+        imageData: signatureCanvasRef.current.getTrimmedCanvas().toDataURL('image/png'),
+        x: 100, 
+        y: 100,
+        // width: canvasWidth / 3, height: canvasHeight / 3
+      };
+      console.log(signatureCanvasRef.current.getSignaturePad());
+      setSignatures(prev => [...prev, item]);
+      onModalClose();
+      toast.closeAll();
+    } else {
+      toast({
+        title: "Draw First",
+        status: "error",
+        isClosable: true,
+      });
+    }
+    
   }
 
   return (
@@ -74,7 +86,7 @@ export const SignaturePad = () => {
                 <SignatureCanvas 
                   ref={signatureCanvasRef}
                   penColor={penColor}
-                  canvasProps={{width: 600, height: 300, className: 'sigCanvas', onClick: () => setAllowCreate(true)}} 
+                  canvasProps={{width: 600, height: 300, className: 'sigCanvas'}} 
                   maxWidth={penWidth}
                 />
               </div>
@@ -116,7 +128,7 @@ export const SignaturePad = () => {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme='blue' isDisabled={!allowCreate} size="sm" mr={3} onClick={handleCreateSignature}>
+            <Button colorScheme='blue' size="sm" mr={3} onClick={handleCreateSignature}>
               Create
             </Button>
           </ModalFooter>
@@ -127,19 +139,70 @@ export const SignaturePad = () => {
 }
 
 
-export const Signatures = ({ pageNumber }) => {
-  const { signatures } = useStateContext();
-  
-  return (
-    <Layer>
-      {
-        signatures?.map(item => {
-          if(pageNumber === item.page) {
-            // return <Text key={item.key} x={200} y={200} text={"SIGNATURE " + item.key} draggable fontSize={22} />
-            return <URLImage key={item.key} x={0} y={0} draggable src={item.imageData} />
-          }
-        })
+export const Signatures = ({ pageNumber, stageProps }) => {
+  const { signatures, setSignatures } = useStateContext();
+  const [selectedId, selectShape] = React.useState(null);
+
+
+  const handleDragEnd = (e) => {
+    const updatedSignatures = signatures?.map(item => {
+      if(item._id === e.target.attrs._id) {
+        item = {...item, ...e.target.attrs}
       }
-    </Layer>
+      return item;
+    });
+    setSignatures(updatedSignatures);
+  }
+
+  const checkDeselect = (e) => {
+    // deselect when clicked on empty area
+    const clickedOnEmpty = e.target === e.target.getStage();
+    if (clickedOnEmpty) {
+      selectShape(null);
+    }
+  };
+
+
+  return (
+    <Stage
+      {...stageProps}
+      onMouseDown={checkDeselect}
+      onTouchStart={checkDeselect}
+    >
+      <Layer>
+        {
+          signatures?.map((item, i) => {
+            if(pageNumber === item.page) {
+              // return <Text key={item.key} x={200} y={200} text={"SIGNATURE " + item.key} draggable fontSize={22} />
+              return (
+                <URLImage 
+                  key={item._id} 
+                  _id={item._id}
+                  src={item.imageData}
+                  shapeProps={{
+                    // x: item.x,
+                    // y: item.y,
+                    // width: item.width,
+                    // height: item.height,
+                    // rotation: item.rotation,
+                    ...item,
+                    draggable: true,
+                    onDragEnd: (e) => handleDragEnd(e),
+                  }}
+
+                  isSelected={item._id === selectedId}
+                  onSelect={() => selectShape(item._id)}
+                  onChange={(newAttrs) => {
+                    const rects = signatures.slice();
+                    rects[i] = {...rects[i], ...newAttrs};
+                    setSignatures(rects);
+                  }}
+                />
+              )
+            }
+          })
+        }
+      </Layer>
+    </Stage>
   )
 }

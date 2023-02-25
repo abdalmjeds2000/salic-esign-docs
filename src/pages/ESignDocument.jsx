@@ -24,8 +24,9 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
         <Slider
           id='slider'
           defaultValue={sliderValue}
-          min={1}
-          max={5}
+          min={2}
+          max={6}
+          step={2}
           onChange={(v) => setSliderValue(v)}
           onMouseEnter={() => setShowTooltip(true)}
           onMouseLeave={() => setShowTooltip(false)}
@@ -48,6 +49,7 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
     const { activePage, setActivePage } = useStateContext();
     const [sliderValue, setSliderValue] = React.useState(3);
 
+
     return (
       <div className='w-80 bg-neutral-200 drop-shadow-lg border-r-4 border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 flex-col overflow-hidden resize-x p-4 hidden md:flex'>
         <div className="thumbs-header mb-4">
@@ -63,7 +65,7 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
                   <div 
                     key={item.Index} 
                     id={`thumb_${item.Index}`} 
-                    className={`thumb-item flex flex-col items-center w-fit h-fit transition-all cursor-pointer bg-neutral-300 dark:bg-neutral-900 dark:bg-opacity-25 bg-opacity-50 dark:hover:bg-opacity-100 hover:bg-opacity-100 ${activePage === item.Index ? "bg-opacity-100 dark:bg-opacity-100" : ""} p-6 pb-3 rounded-lg`}
+                    className={`thumb-item flex flex-col items-center w-fit h-fit transition-all cursor-pointer bg-neutral-300 dark:bg-neutral-900 dark:bg-opacity-25 bg-opacity-25 dark:hover:bg-opacity-100 hover:bg-opacity-100 ${activePage === item.Index ? "bg-opacity-100 dark:bg-opacity-100" : ""} p-4 pb-1 rounded-lg`}
                     onClick={() => {
                       setActivePage(item.Index);
                       const element = document.getElementById(`page_${item.Index}`);
@@ -75,7 +77,7 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
                       className={`thumb-body relative rounded-sm overflow-hidden bg-white shadow-xl ${activePage === item.Index && "outline outline-4 outline-slate-400 dark:outline-slate-400"}`} 
                       style={{width: (item.width / 4) * (sliderValue * 0.25), height: (item.height / 4) * (sliderValue * 0.25)}}
                     >
-                      <div className="overlay_layer p-2 absolute w-full h-full flex flex-col justify-end items-center overflow-hidden" style={{ background: pageActions.length > 0 ? "linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.15) 100%)" : "" }}>
+                      {/* <div className="overlay_layer p-2 absolute w-full h-full flex flex-col justify-end items-center overflow-hidden" style={{ background: pageActions.length > 0 ? "linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.15) 100%)" : "" }}>
                         <Tooltip label={`Actions for #${item.Index} page`} openDelay={500} fontSize="small">
                           <div className="thumb-actions flex gap-1 flex-wrap mb-1">
                             {pageActions?.map((action, i) => {
@@ -87,10 +89,13 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
                             })}
                           </div>
                         </Tooltip>
-                      </div>
+                      </div> */}
 
-                      {/* {item.Index} */}
-
+                      <img 
+                        src={`https://salicapi.com/api/Signature/GetThumbnailPage?Page=${item.Index+1}`} alt=""
+                        width="100%" height="100%" 
+                        loading="lazy"
+                      />
                     </div>
                     <div className={`thumb-footer text-text-color dark:text-white ${activePage === item.Index ? "text-slate-500 font-semibold" : ""}`}>
                       {item.Index}
@@ -159,23 +164,15 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
     }, [pdfQuality]);
 
     const Drawing = () => (
-      <Stage width={item.width * scale} height={item.height * scale} scale={{x: scale, y: scale}} style={{ position: "absolute", top: 0, left: 0 }}>
-        <Layer>
-          <Rect x={25} y={25} width={50} height={50} fill="#0035c6" onClick={() => alert("you are clicked on rectangle")} shadowBlur={10} shadowOpacity={.5} />
-          <Circle
-            x={70}
-            y={70}
-            draggable
-            radius={25}
-            fill="#00c6c6"
-            onClick={() => alert("you are clicked on Circle")}
-            pointer
-          />
-          <Text x={100} y={40} text="This is try to Draw Text" draggable fontSize={22} />
-          <Text x={350} y={40} text={"#" + item.Index} fontSize={22} />
-        </Layer>
-        <Signatures pageNumber={item.Index} />
-      </Stage>
+      <Signatures 
+        pageNumber={item.Index} 
+        stageProps={{
+          width: item.width * scale,
+          height: item.height * scale,
+          scale: {x: scale, y: scale},
+          style: {position: "absolute", top: 0, left: 0}
+        }}
+      />
     )
     
     return (
@@ -192,13 +189,13 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
                 <img 
                   src={imgData.src} alt=""
                   width={imgData.width * scale} height={imgData.height * scale} 
+                  loading="lazy"
                 />
               </>
             ) : (
               <div className="flex justify-center mt-14"><Spinner size='md' /></div>
             )
           }
-          
         </div>
         <div className='flex justify-between'>
           <p className="text-sm">file.png</p>

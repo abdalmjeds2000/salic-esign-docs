@@ -103,7 +103,7 @@ const ToolsHeader = ({ actions }) => {
             <span className="ml-1"><SignaturePad /></span>
           </div>
 
-          <div className='flex gap-2 items-center'>
+          {/* <div className='flex gap-2 items-center'>
             {actions?.map((item, i) => (
               <Tooltip key={i} label={`#${item.page}`}>
                 <Button
@@ -117,7 +117,7 @@ const ToolsHeader = ({ actions }) => {
                 >{i+1}</Button>
               </Tooltip>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

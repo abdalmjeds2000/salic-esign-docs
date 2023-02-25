@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState } from 'react';
 const StateContext = createContext();
 
 export const ContextProvider = ({ children }) => {
-  const [activeThumbnailes, setActiveThumbnailes] = useState(true);
+  const [activeThumbnailes, setActiveThumbnailes] = useState(false);
   const [currentMode, setCurrentMode] = useState(localStorage.getItem('chakra-ui-color-mode') || 'light');
   const totalPages = 0;
   const [currentPage, setCurrentPage] = useState(1);
@@ -13,6 +13,7 @@ export const ContextProvider = ({ children }) => {
   const [activePage, setActivePage] = useState(1);
   const [pdfQuality, setPdfQuality] = useState(2);
 
+  const [isAllowShowDoc, setIsAllowShowDoc] = useState(false);
 
 
 
@@ -81,7 +82,8 @@ export const ContextProvider = ({ children }) => {
       signatures, setSignatures,
       activePage, setActivePage,
       goToPage,
-      pdfQuality, setPdfQuality
+      pdfQuality, setPdfQuality,
+      isAllowShowDoc, setIsAllowShowDoc,
     }}>
       {children}
     </StateContext.Provider>
