@@ -207,7 +207,7 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
     return (
       <div key={item.Index} ref={pageRef} id={`page_${item.Index}`} className={`page-item mb-6 transition-all ${isReady ? "opacity-100" : "opacity-25"}`}>
         <div 
-          className="text-9xl shadow-lg bg-white rounded-sm overflow-hidden text-text-color" 
+          className="text-9xl bg-white rounded-sm overflow-hidden text-text-color" 
           style={{width: item.width * scale, height: item.height * scale, transform: `rotate(${rotation}deg)`}}
         >
           {
@@ -226,9 +226,9 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
             )
           }
         </div>
-        <div className='flex justify-between mt-2'>
-          <p className="text-sm">78d11272-86b3-49fe-a3d5-284ecf48ec01</p>
-          <p className="text-sm">{item.Index} / {totalPages}</p>
+        <div className='mt-2 h-4'>
+          <p className="text-sm float-left max-md:hidden">78d11272-86b3-49fe-a3d5-284ecf48ec01</p>
+          <p className="text-sm md:float-right text-center">{item.Index} / {totalPages}</p>
         </div>
       </div>
     )
@@ -238,7 +238,7 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
     const { scale } = useStateContext();
 
     return (
-      <div className="flex-[7] flex flex-col bg-neutral-100 px-2 md:px-6 dark:bg-neutral-700 overflow-auto">
+      <div className="flex-[7] flex flex-col bg-neutral-300 px-2 md:px-6 dark:bg-neutral-700 overflow-auto">
         <div className="pages-header"></div>
         <div className='pages-body h-full'>
           <Scrollbars style={{ height: "100%" }}>
@@ -263,9 +263,16 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
   }
 
 
+
+
+
 const ESignDocument = () => {
-  const [documentSchema, setDocumentSchema] = useState(docSchema);
+  const [documentSchema] = useState(docSchema);
   const { activeThumbnailes } = useStateContext();
+
+  useEffect(() => {
+    document.title = `SALIC eSign - [${documentSchema.title}]`
+  }, [documentSchema]);
 
   return (
     <div className="w-screen h-screen overflow-auto bg-white">

@@ -1,5 +1,5 @@
 import { Box, Button, Divider, PinInput, PinInputField, SimpleGrid, Text, useColorMode } from '@chakra-ui/react';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { MdDarkMode, MdOutlineLightMode } from 'react-icons/md';
 import { useStateContext } from '../context/ContextProvider';
 
@@ -22,10 +22,14 @@ const OTP = () => {
   }
 
 
+  useEffect(() => {
+    document.title = "SALIC eSign - Request Access"
+  }, []);
+
 
   return (
     <div className='flex flex-col w-screen h-screen overflow-auto bg-white dark:bg-third-dark-bg'>
-      {/* <div className='relative right-0 top-0 w-full h-16 pt-3 px-6 pb-6 bg-gradient-to-b from-neutral-300 dark:from-neutral-900 dark:bg-transparent'>
+      <div className='relative right-0 top-0 w-full h-16 pt-3 px-6 pb-6'>
         <div className='flex justify-between max-w-[1600px] mx-auto'>
           <div>
             <img 
@@ -45,7 +49,7 @@ const OTP = () => {
             {currentMode === "dark" ? <MdDarkMode /> : <MdOutlineLightMode />}
           </Button>
         </div>
-      </div> */}
+      </div>
 
 
       <div className='p-10 max-md:px-4'>  

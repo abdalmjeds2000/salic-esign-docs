@@ -72,7 +72,7 @@ const qualityOptions = [
 const Header = ({ docSchema }) => {
   const { currentMode, scale, setMode, setActiveThumbnailes, activeThumbnailes, pdfQuality, setPdfQuality, handleRotateLeft, handleRotateRight, handleZoomIn, handleZoomOut, setZoom } = useStateContext();
   const { toggleColorMode } = useColorMode();
-  const [isShowTools, setIsShowTools] = useState(false);
+  const [isShowTools, setIsShowTools] = useState(true);
   const toast = useToast();
 
   useEffect(() => {
@@ -115,32 +115,34 @@ const Header = ({ docSchema }) => {
         title="Zoom Out"
         handleClick={handleZoomOut}
       />
-      <div>
-        <Menu>
+      <Menu>
+        <Tooltip label="Select Zoom">
           <MenuButton as={Button} bg="transparent" rightIcon={<BiChevronDown />}>
             {Math.round(scale*100)}%
           </MenuButton>
-          <MenuList>
-            <MenuItem onClick={() => setZoom(setScaleByParentWidth())}>Fit to width</MenuItem>
-            {/* <MenuItem>Fit to hight</MenuItem> */}
-            <MenuDivider />
-            {zoomOptions.map((item, i) => (
-              <MenuItem key={i} command={scale === item.value ? <IoMdCheckmark /> : ""} onClick={() => setZoom(item.value)}>{item.label}</MenuItem>
-            ))}
-          </MenuList>
-        </Menu>
-      </div>
+        </Tooltip>
+        <MenuList>
+          <MenuItem onClick={() => setZoom(setScaleByParentWidth())}>Fit to width</MenuItem>
+          {/* <MenuItem>Fit to hight</MenuItem> */}
+          <MenuDivider />
+          {zoomOptions.map((item, i) => (
+            <MenuItem key={i} command={scale === item.value ? <IoMdCheckmark /> : ""} onClick={() => setZoom(item.value)}>{item.label}</MenuItem>
+          ))}
+        </MenuList>
+      </Menu>
       <ToolbarBtn
         icon={<FiZoomIn />}
         title="Zoom In"
         handleClick={handleZoomIn}
       />
       <Menu>
-        <MenuButton as={Button} bg="transparent" rightIcon={<BiChevronDown />}>
-          <span className='text-text-color dark:text-white text-2xl'>
-            <MdOutlineImage />
-          </span>
-        </MenuButton>
+        <Tooltip label="Render Quality">
+          <MenuButton as={Button} bg="transparent" rightIcon={<BiChevronDown />}>
+            <span className='text-text-color dark:text-white text-2xl'>
+              <MdOutlineImage />
+            </span>
+          </MenuButton>
+        </Tooltip>
         <MenuList>
           {qualityOptions?.map((item, i) => (
             <MenuItem key={i} onClick={() => setPdfQuality(item.value)} command={pdfQuality == item.value ? <IoMdCheckmark /> : null}>
@@ -180,12 +182,11 @@ const Header = ({ docSchema }) => {
         </div>
         <div className='hidden md:flex'>
           {/* <img src={logo} alt="logo" className="hidden md:block" style={{ height: 30, filter: currentMode === "dark" ? "grayscale(1) invert(1)" : "" }} /> */}
-          {!isShowTools && <div className='flex items-center gap-2'>
+          <div className='flex items-center gap-2'>
           <ViewerTools />
-        </div>}
         </div>
-        {!isShowTools && 
-          <ToolbarBtn
+        </div>
+        <ToolbarBtn
             icon={currentMode === "dark" ? <MdDarkMode /> : <MdOutlineLightMode />}
             title={`Switch To ${currentMode === "dark" ? "Light" : "Dark"} Mode`}
             handleClick={() => {
@@ -193,7 +194,6 @@ const Header = ({ docSchema }) => {
               toggleColorMode();
             }}
           />
-        }
       </div>
     </header>
   )
