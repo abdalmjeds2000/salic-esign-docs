@@ -93,13 +93,13 @@ export const SignaturePad = () => {
                 <div className="flex flex-wrap gap-3">
                   <Tooltip label="Pen Width">
                     <div>
-                      <Button colorScheme='blue' roundedLeft="lg" padding={1} roundedRight="none" onClick={() => dispatchPW({ type: "INCREASE" })}>
+                      <Button colorScheme='blue' size="sm" roundedLeft="lg" padding={1} roundedRight="none" onClick={() => dispatchPW({ type: "INCREASE" })}>
                         <AiOutlinePlus />
                       </Button>
-                      <Button colorScheme='gray' rounded="none">
+                      <Button colorScheme='gray' size="sm" rounded="none">
                         {penWidth}
                       </Button>
-                      <Button colorScheme='gray' variant="outline" roundedRight="lg" padding={1} roundedLeft="none" onClick={() => dispatchPW({ type: "DECREASE" })}>
+                      <Button colorScheme='gray' size="sm" variant="outline" roundedRight="lg" padding={1} roundedLeft="none" onClick={() => dispatchPW({ type: "DECREASE" })}>
                         <AiOutlineMinus />
                       </Button>
                     </div>
@@ -108,7 +108,7 @@ export const SignaturePad = () => {
                     <Stack direction="row">
                       {penColorsList.map(item => (
                         <Button
-                          size="md"
+                          size="sm"
                           className={`p-1 rounded-full w-8 h-8 flex align-middle justify-center`}
                           style={{ backgroundColor: penColor !== item.hex ? item.hex+30 : item.hex, border: `3px solid ${item.hex}` }}
                           onClick={() => {
@@ -128,19 +128,19 @@ export const SignaturePad = () => {
                     </Stack>
                   </div>
                   <Tooltip label="Click to Draw">
-                    <Button onClick={() => signatureCanvasRef.current.eraseMode(false)}><ImPencil2 /></Button>
+                    <Button size="sm" onClick={() => signatureCanvasRef.current.eraseMode(false)}><ImPencil2 /></Button>
                   </Tooltip>
                   <Tooltip label="Eraser">
-                    <Button onClick={() => signatureCanvasRef.current.eraseMode(true)}><FaEraser /></Button>
+                    <Button size="sm" onClick={() => signatureCanvasRef.current.eraseMode(true)}><FaEraser /></Button>
                   </Tooltip>
                   <Tooltip label="Undo">
-                    <Button onClick={() => signatureCanvasRef.current.undo()}><FaUndo /></Button>
+                    <Button size="sm" onClick={() => signatureCanvasRef.current.undo()}><FaUndo /></Button>
                   </Tooltip>
                   <Tooltip label="Redo">
-                    <Button onClick={() => signatureCanvasRef.current.redo()}><FaRedo /></Button>
+                    <Button size="sm" onClick={() => signatureCanvasRef.current.redo()}><FaRedo /></Button>
                   </Tooltip>
                   <Tooltip label="Reset Canvas">
-                    <Button onClick={() => signatureCanvasRef.current.resetCanvas()}><GrClearOption className='mr-1' />Clear</Button>
+                    <Button size="sm" onClick={() => signatureCanvasRef.current.resetCanvas()}><GrClearOption className='mr-1' />Clear</Button>
                   </Tooltip>
                   {/* <Button colorScheme='gray' size="sm" ml={3} onClick={clear}>
                     Clear
@@ -150,7 +150,7 @@ export const SignaturePad = () => {
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme='blue' size="lg" mr={3} onClick={handleCreateSignature}>
+            <Button colorScheme='blue' size="md" mr={3} onClick={handleCreateSignature}>
               Create
             </Button>
           </ModalFooter>
