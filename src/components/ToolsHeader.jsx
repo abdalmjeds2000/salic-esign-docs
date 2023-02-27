@@ -169,15 +169,14 @@ const ToolsHeader = ({ actions }) => {
 
 
           <div className='flex gap-2 items-center'>
-            <Button 
+            {selectedId && <Button 
               colorScheme='red' 
               size="xs" 
               variant="solid" 
-              isDisabled={!selectedId} 
               onClick={handleDeleteSignature}
             >
               <HiOutlineTrash size={16} />
-            </Button>
+            </Button>}
           </div>
 
 
