@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useStateContext } from "../context/ContextProvider";
 import Header from "../components/Header";
-import { docSchema } from "../data/docSchema";
 import { Scrollbars } from 'react-custom-scrollbars-2';
-import { Skeleton, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spinner, Stack, Tooltip } from "@chakra-ui/react";
+import { Skeleton, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spinner, Stack, Tooltip, useDisclosure } from "@chakra-ui/react";
 import ToolsHeader from "../components/ToolsHeader";
 import useOnScreen from "../hooks/useOnScreen";
-import { Signatures } from "../components/signature-pad/SignaturePad";
+import { Signatures, SignaturePad } from "../components/signature-pad/SignaturePad";
+import { Image, Layer, Rect, Stage } from "react-konva";
+import URLImage from "../components/konva-components/URLImage";
 
 
   function SliderThumbs({ getSliderValue }) {
@@ -141,7 +142,7 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
 
   const Page = ({item, totalPages}) => {
     const pageRef = useRef();
-    const { scale, rotation, setActivePage, pdfQuality } = useStateContext();
+    const { scale, rotation, setActivePage, pdfQuality, selectShape, onOpen, setNewSignAttrs } = useStateContext();
     const [isReady, setIsReady] = useState(false);
     const [imgData, setImgData] = useState({});
     const [loading, setLoading] = useState(true);
@@ -192,16 +193,62 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
       setIsReady(false);
     }, [pdfQuality]);
 
+
+    const checkDeselect = (e) => {
+      // deselect when clicked on empty area
+      const clickedOnEmpty = e.target === e.target.getStage();
+      if (clickedOnEmpty) {
+        selectShape(null);
+      }
+    };
+
+
     const Drawing = () => (
-      <Signatures 
-        pageNumber={item.Index} 
-        stageProps={{
-          width: item.width * scale,
-          height: item.height * scale,
-          scale: {x: scale, y: scale},
-          style: {position: "absolute", top: 0, left: 0}
-        }}
-      />
+      <Stage
+        width={item.width * scale}
+        height={item.height * scale}
+        scale={{x: scale, y: scale}}
+        style={{position: "absolute", top: 0, left: 0}}
+        onMouseDown={checkDeselect}
+        onTouchStart={checkDeselect}
+      >
+        <Layer>
+          {item?.signaturesPlaces?.map((sign, i) => (
+            <URLImage
+              src={require("../assets/images/sign_placeholder.png")}
+              shapeProps={{
+                ...sign,
+                // x: 200,
+                // y: 580,
+                // scaleX: 1,
+                // scaleY: 1,
+                // width: 200,
+                // height: 120,
+                draggable: false,
+                onDblClick: (e) => {
+                  setNewSignAttrs(sign);
+                  onOpen();
+                  console.log(e);
+                },
+                onDblTap: (e) => {
+                  setNewSignAttrs(sign);
+                  onOpen();
+                  console.log(e);
+                }
+              }}
+            />
+          ))}
+        </Layer>
+        <Signatures 
+          pageNumber={item.Index} 
+          stageProps={{
+            width: item.width * scale,
+            height: item.height * scale,
+            scale: {x: scale, y: scale},
+            style: {position: "absolute", top: 0, left: 0}
+          }}
+        />
+      </Stage>
     )
     
     return (
@@ -238,11 +285,11 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
     const { scale } = useStateContext();
 
     return (
-      <div className="flex-[7] flex flex-col bg-neutral-300 px-2 md:px-6 dark:bg-neutral-700 overflow-auto">
+      <div className="flex-[7] flex flex-col bg-neutral-300 px-0 md:px-6 dark:bg-neutral-700 overflow-auto">
         <div className="pages-header"></div>
         <div className='pages-body h-full'>
           <Scrollbars style={{ height: "100%" }}>
-            <div ref={pagesParentRef} id="pagesParentRef" className='pages block h-full py-10'>
+            <div ref={pagesParentRef} id="pagesParentRef" className='pages block h-full pt-5 pb-10'>
               {
                 pages?.map((item) => (
                   <div key={item.Index} className="mx-auto last:pb-8" style={{ width: item.width * scale }}>
@@ -267,19 +314,24 @@ import { Signatures } from "../components/signature-pad/SignaturePad";
 
 
 const ESignDocument = () => {
-  const [documentSchema] = useState(docSchema);
-  const { activeThumbnailes } = useStateContext();
+  const { activeThumbnailes, documentSchema, setZoom, setScaleByParentWidth, isMobile, isOpen, onOpen, onClose } = useStateContext();
 
   useEffect(() => {
     document.title = `SALIC eSign - [${documentSchema.title}]`
   }, [documentSchema]);
+
+  useEffect(() => {
+    setZoom(setScaleByParentWidth());
+  }, [activeThumbnailes]);
+
 
   return (
     <div className="w-screen h-screen overflow-auto bg-white">
       <Header docSchema={documentSchema} />
       <ToolsHeader actions={documentSchema.actions} />
 
-      <main className="flex flex-1 h-full pt-[5.5rem]">
+      <main className="flex flex-1 h-full" style={{ paddingTop: /* isMobile ? "3.5rem" : */ "5.5rem" }}>
+        <SignaturePad isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
         {activeThumbnailes && <Thumbs pages={documentSchema.pages} actions={documentSchema.actions} />}
         <Document pages={documentSchema.pages} />
       </main>

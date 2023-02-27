@@ -1,12 +1,13 @@
-import { useToast } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { docSchema } from '../data/docSchema';
+
 
 const StateContext = createContext();
 
 export const ContextProvider = ({ children }) => {
   const [activeThumbnailes, setActiveThumbnailes] = useState(false);
   const [currentMode, setCurrentMode] = useState(localStorage.getItem('chakra-ui-color-mode') || 'light');
-  const totalPages = 0;
   const [currentPage, setCurrentPage] = useState(1);
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(0);
@@ -14,7 +15,16 @@ export const ContextProvider = ({ children }) => {
   const [activePage, setActivePage] = useState(1);
   const [pdfQuality, setPdfQuality] = useState(2);
   const [isAllowShowDoc, setIsAllowShowDoc] = useState(false);
-  const toast = useToast();
+  const [documentSchema, setDocumentSchema] = useState(docSchema);
+  const [selectedId, selectShape] = React.useState(null);
+  const totalPages = documentSchema?.numOfPages;
+  const [isOpenSignCM, setIsisOpenSignCM] = useState(false);
+
+  const [selectedSignPaths, setSelectedSignPaths] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const [newSignAttrs, setNewSignAttrs] = useState({});
+
 
 
 
@@ -66,6 +76,42 @@ export const ContextProvider = ({ children }) => {
   }
 
 
+  var isMobile = (/iphone|ipad|ipod|android|blackberry|mini|windows\sce|palm/i.test(navigator.userAgent.toLowerCase()));
+
+  const setScaleByParentWidth = () => {
+    const paddingPage = isMobile ? 5 : 25;
+    const parentWidth = document.getElementById("pagesParentRef")?.clientWidth - paddingPage;
+    const firstPageWidth = documentSchema?.pages[0].width;
+    const newScale = parentWidth / firstPageWidth;
+    if(newScale) {
+      return newScale
+    }
+    return 1
+  }
+
+  // handle delete selected signature
+  const handleDeleteSignature = () => {
+    const newSignatureList = signatures.filter(sign => sign._id !== selectedId);
+    setSignatures(newSignatureList);
+    selectShape(null);
+  }
+  const keydownHandler = (e) => {
+    e.preventDefault();
+    if(e.key === "Delete" && selectedId) {
+      handleDeleteSignature();
+    }
+  }
+  useEffect(() => {
+    document.addEventListener("keydown", keydownHandler);
+
+    return () => {
+      document.removeEventListener("keydown", keydownHandler);
+    }
+  }, [selectedId]);
+
+
+
+
   return (
     <StateContext.Provider value={{ 
       activeThumbnailes,
@@ -84,6 +130,15 @@ export const ContextProvider = ({ children }) => {
       goToPage,
       pdfQuality, setPdfQuality,
       isAllowShowDoc, setIsAllowShowDoc,
+      setScaleByParentWidth,
+      documentSchema, setDocumentSchema,
+      selectedId, selectShape,
+      isMobile,
+      isOpenSignCM, setIsisOpenSignCM,
+      handleDeleteSignature,
+      selectedSignPaths, setSelectedSignPaths,
+      isOpen, onOpen, onClose,
+      newSignAttrs, setNewSignAttrs
     }}>
       {children}
     </StateContext.Provider>

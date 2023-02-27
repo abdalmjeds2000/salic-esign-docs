@@ -70,7 +70,7 @@ const qualityOptions = [
 
 
 const Header = ({ docSchema }) => {
-  const { currentMode, scale, setMode, setActiveThumbnailes, activeThumbnailes, pdfQuality, setPdfQuality, handleRotateLeft, handleRotateRight, handleZoomIn, handleZoomOut, setZoom } = useStateContext();
+  const { currentMode, scale, setMode, setActiveThumbnailes, activeThumbnailes, pdfQuality, setPdfQuality, handleRotateLeft, handleRotateRight, handleZoomIn, handleZoomOut, setZoom, setScaleByParentWidth } = useStateContext();
   const { toggleColorMode } = useColorMode();
   const [isShowTools, setIsShowTools] = useState(true);
   const toast = useToast();
@@ -86,16 +86,7 @@ const Header = ({ docSchema }) => {
       toast.closeAll();
     }
   }, [pdfQuality]);
-  const setScaleByParentWidth = () => {
-    const parentWidth = document.getElementById("pagesParentRef")?.clientWidth - 40;
-    const firstPageWidth = docSchema.pages[0].width;
-    const newScale = parentWidth / firstPageWidth;
-    return newScale
-  }
 
-  useEffect(() => {
-    setZoom(setScaleByParentWidth());
-  }, [activeThumbnailes]);
 
   const ViewerTools = () => (
     <div className='flex items-center gap-1'>
@@ -172,7 +163,7 @@ const Header = ({ docSchema }) => {
           </div>
           <div className='flex items-center md:hidden mr-4'>
             <ToolbarBtn
-              icon={isShowTools ? <RiArrowRightSLine /> : <RiArrowLeftSLine />}
+              icon={isShowTools ? <RiArrowLeftSLine /> : <RiArrowRightSLine />}
               title="Viewer Tools"
               handleClick={() => setIsShowTools(prev => !prev)}
               className="mr-4"

@@ -1,14 +1,12 @@
 import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Radio, Stack, Tooltip, useDisclosure, useRadio, useRadioGroup, useToast } from '@chakra-ui/react';
 import React, { useEffect, useReducer, useRef, useState } from 'react';
-import { FaEraser, FaRedo, FaSignature, FaUndo } from 'react-icons/fa';
+import { FaEraser, FaRedo, FaUndo } from 'react-icons/fa';
 import { AiOutlinePlus, AiOutlineMinus } from 'react-icons/ai';
-import SignatureCanvas from 'react-signature-canvas';
-import { Layer, Stage } from 'react-konva';
+import { Layer } from 'react-konva';
 import { useStateContext } from '../../context/ContextProvider';
 import URLImage from '../../components/konva-components/URLImage';
 import { ReactSketchCanvas } from "react-sketch-canvas";
 import { ImPencil2 } from 'react-icons/im';
-import { GrClearOption } from 'react-icons/gr';
 
 
 
@@ -34,8 +32,7 @@ const penColorsList = [
 
 
 export const SignaturePad = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const { signatures, setSignatures, activePage } = useStateContext();
+  const { signatures, setSignatures, activePage, selectShape, selectedSignPaths, setSelectedSignPaths, isOpen, onOpen, onClose, newSignAttrs } = useStateContext();
   const signatureCanvasRef = useRef();
   const [penWidth, dispatchPW] = useReducer(reducerPenWidth, 8);
   const [penColor, setPenColor] = useState("#000000");
@@ -43,19 +40,23 @@ export const SignaturePad = () => {
 
   const onModalClose = () => {
     onClose();
+    setSelectedSignPaths(null);
   }
   const handleCreateSignature = async () => {
+    console.log(newSignAttrs);
     const paths = await signatureCanvasRef.current.exportPaths();
-    if(paths.length) {
+    if(paths?.length) {
       const imgData = await signatureCanvasRef.current.exportImage("svg");
       const item = {
         _id: signatures.length + 1,
         page: activePage,
-        imageData: imgData,
-        x: 100, 
-        y: 100,
-        width: 192, height: 108
+        imageData: imgData, signPaths: paths,
+        x: 100, y: 100,
+        width: 192, height: 108,
+        scaleX: 1, scaleY: 1,
+        ...newSignAttrs
       };
+      selectShape(item._id);
       setSignatures(prev => [...prev, item]);
       onModalClose();
     } else {
@@ -67,11 +68,18 @@ export const SignaturePad = () => {
     }
   }
 
+  useEffect(() => {
+    if(selectedSignPaths?.length) {
+      onOpen();
+    }
+  }, [selectedSignPaths]);
+
+
   return (
     <div>
-      <Tooltip label="Signature Pad">
+      {/* <Tooltip label="Signature Pad">
         <Button colorScheme='orange' variant="outline" size='xs' onClick={onOpen}><FaSignature /></Button>
-      </Tooltip>
+      </Tooltip> */}
       <Modal isOpen={isOpen} size="3xl" onClose={onModalClose}>
         <ModalOverlay />
         <ModalContent>
@@ -106,8 +114,9 @@ export const SignaturePad = () => {
                   </Tooltip>
                   <div>
                     <Stack direction="row">
-                      {penColorsList.map(item => (
+                      {penColorsList.map((item, i) => (
                         <Button
+                          key={i}
                           size="sm"
                           className={`p-1 rounded-full w-8 h-8 flex align-middle justify-center`}
                           style={{ backgroundColor: penColor !== item.hex ? item.hex+30 : item.hex, border: `3px solid ${item.hex}` }}
@@ -139,18 +148,15 @@ export const SignaturePad = () => {
                   <Tooltip label="Redo">
                     <Button size="sm" onClick={() => signatureCanvasRef.current.redo()}><FaRedo /></Button>
                   </Tooltip>
-                  <Tooltip label="Reset Canvas">
-                    <Button size="sm" onClick={() => signatureCanvasRef.current.resetCanvas()}><GrClearOption className='mr-1' />Clear</Button>
-                  </Tooltip>
-                  {/* <Button colorScheme='gray' size="sm" ml={3} onClick={clear}>
-                    Clear
-                  </Button> */}
                 </div>
               </div>
             </div>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme='blue' size="md" mr={3} onClick={handleCreateSignature}>
+            <Tooltip label="Reset Canvas">
+              <Button size="md" variant="solid" colorScheme="red" mr="2" onClick={() => signatureCanvasRef.current.resetCanvas()}>Clear</Button>
+            </Tooltip>
+            <Button colorScheme='green' size="md" mr={3} onClick={handleCreateSignature}>
               Create
             </Button>
           </ModalFooter>
@@ -161,70 +167,52 @@ export const SignaturePad = () => {
 }
 
 
-export const Signatures = ({ pageNumber, stageProps }) => {
-  const { signatures, setSignatures } = useStateContext();
-  const [selectedId, selectShape] = React.useState(null);
+export const Signatures = ({ pageNumber }) => {
+  const { signatures, setSignatures, selectedId, selectShape, setSelectedSignPaths } = useStateContext();
 
 
   const handleDragEnd = (e) => {
     const updatedSignatures = signatures?.map(item => {
       if(item._id === e.target.attrs._id) {
         item = {...item, ...e.target.attrs}
+        selectShape(item._id);
       }
       return item;
     });
     setSignatures(updatedSignatures);
   }
 
-  const checkDeselect = (e) => {
-    // deselect when clicked on empty area
-    const clickedOnEmpty = e.target === e.target.getStage();
-    if (clickedOnEmpty) {
-      selectShape(null);
-    }
-  };
-
+  
 
   return (
-    <Stage
-      {...stageProps}
-      onMouseDown={checkDeselect}
-      onTouchStart={checkDeselect}
-    >
-      <Layer>
-        {
-          signatures?.map((item, i) => {
-            if(pageNumber === item.page) {
-              // return <Text key={item.key} x={200} y={200} text={"SIGNATURE " + item.key} draggable fontSize={22} />
-              return (
-                <URLImage 
-                  key={item._id} 
-                  _id={item._id}
-                  src={item.imageData}
-                  shapeProps={{
-                    // x: item.x,
-                    // y: item.y,
-                    // width: item.width,
-                    // height: item.height,
-                    // rotation: item.rotation,
-                    ...item,
-                    draggable: true,
-                    onDragEnd: (e) => handleDragEnd(e),
-                  }}
-
-                  isSelected={item._id === selectedId}
-                  onSelect={() => selectShape(item._id)}
-                  onChange={(newAttrs) => {
-                    const rects = signatures.slice();
-                    rects[i] = {...rects[i], ...newAttrs};
-                    setSignatures(rects);
-                  }}
-                />
-              )
-            }
-          })
-        }
-      </Layer>
-    </Stage>
+    <Layer>
+      {
+        signatures?.map((item, i) => {
+          if(pageNumber === item.page) {
+            return (
+              <URLImage 
+                key={item._id} 
+                _id={item._id}
+                src={item.imageData}
+                shapeProps={{
+                  ...item,
+                  draggable: true,
+                  onDragEnd: (e) => handleDragEnd(e),
+                  // onDblClick: (e) => setSelectedSignPaths(e.target.attrs.signPaths),
+                }}
+                isSelected={item._id === selectedId}
+                onSelect={() => selectShape(item._id)}
+                onChange={(newAttrs) => {
+                  const rects = signatures.slice();
+                  rects[i] = {...rects[i], ...newAttrs};
+                  console.log(rects[i]);
+                  setSignatures(rects);
+                }}
+              />
+            )
+          }
+        })
+      }
+    </Layer>
   )
 }

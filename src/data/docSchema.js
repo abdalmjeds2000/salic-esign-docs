@@ -48,11 +48,38 @@ export var docSchema = {
 			height: 775,
 			Index: 1,
 			isLoaded: false,
+			signaturesPlaces: [
+				{
+					x: 150,
+					y: 580,
+					width: 120,
+					height: 70,
+					scaleX: 1,
+					scaleY: 1,
+				}
+			]
 		},{
 			width: 584,
 			height: 775,
 			Index: 2,
 			isLoaded: false,
+			signaturesPlaces: [
+				{
+					x: 150,
+					y: 580,
+					width: 120,
+					height: 70,
+					scaleX: 1,
+					scaleY: 1,
+				},{
+					x: 300,
+					y: 580,
+					width: 120,
+					height: 70,
+					scaleX: 2,
+					scaleY: 1,
+				}
+			]
 		},{
 			width: 584,
 			height: 775,

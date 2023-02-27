@@ -1,9 +1,9 @@
 import { Button, Kbd, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tooltip, Tr, useDisclosure } from "@chakra-ui/react";
 import React from "react";
 import { TbFileInfo, TbSettings } from "react-icons/tb";
+import { HiOutlineTrash } from "react-icons/hi";
 import { useStateContext } from "../context/ContextProvider";
 import { docSchema } from "../data/docSchema";
-import { SignaturePad } from "./signature-pad/SignaturePad";
 
 const DocumentInformation = ({ dataSchema, numOfPages }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -134,9 +134,12 @@ const SettingsMenu = ({ data, numOfPages }) => {
 
 
 
-
 const ToolsHeader = ({ actions }) => {
+  const { isMobile, selectedId, handleDeleteSignature } = useStateContext();
 
+  // if(isMobile) {
+  //   return <></>
+  // }
   return (
     <div className="fixed top-14 shadow-2xl dark:drop-shadow-xl z-[9] w-full">
       <div className="h-9 px-3 py-0 md:px-6 bg-[#f0f2f4] dark:bg-secondary-dark-bg dark:text-white text-text-color">
@@ -144,7 +147,7 @@ const ToolsHeader = ({ actions }) => {
           <div className="flex justify-center items-center gap-1">
             <SettingsMenu />
             <DocumentInformation dataSchema={docSchema} numOfPages={docSchema.numOfPages} />
-            <span className="ml-2"><SignaturePad /></span>
+            {/* <span className="ml-2"><SignaturePad /></span> */}
           </div>
 
           {/* <div className='flex gap-2 items-center'>
@@ -162,6 +165,22 @@ const ToolsHeader = ({ actions }) => {
               </Tooltip>
             ))}
           </div> */}
+
+
+
+          <div className='flex gap-2 items-center'>
+            <Button 
+              colorScheme='red' 
+              size="xs" 
+              variant="solid" 
+              isDisabled={!selectedId} 
+              onClick={handleDeleteSignature}
+            >
+              <HiOutlineTrash size={16} />
+            </Button>
+          </div>
+
+
         </div>
       </div>
     </div>
