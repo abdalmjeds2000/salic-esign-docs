@@ -76,7 +76,7 @@ export var docSchema = {
 					y: 580,
 					width: 120,
 					height: 70,
-					scaleX: 2,
+					scaleX: 1.2,
 					scaleY: 1,
 				}
 			]

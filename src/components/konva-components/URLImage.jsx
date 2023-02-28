@@ -2,7 +2,7 @@ import React from 'react';
 import { Group, Image, Transformer } from 'react-konva';
 import useImage from 'use-image';
 
-const URLImage = ({ _id, src, shapeProps, isSelected, onSelect, onChange }) => {
+const URLImage = ({ _id, src, shapeProps, isSelected, onSelect, onChange, onClick, onTap }) => {
   const [img] = useImage(src);
   const shapeRef = React.useRef();
   const trRef = React.useRef();
@@ -26,29 +26,24 @@ const URLImage = ({ _id, src, shapeProps, isSelected, onSelect, onChange }) => {
         <Image
           _id={_id}
           image={img}
-          // I will use offset to set origin to the center of the image
-          dash={12}
           draggable
-          onClick={onSelect}
-          onTap={onSelect}
+          onClick={(e) => {
+            if(onSelect) onSelect();
+            if(onClick) onClick(e);
+          }}
+          onTap={(e) => {
+            if(onSelect) onSelect();
+            if(onTap) onTap(e);
+          }}
           ref={shapeRef}
-          onMouseOver={() => document.body.style.cursor = "pointer"}
-          onMouseLeave={() => document.body.style.cursor = "initial"}
-          
+          // onMouseOver={() => document.body.style.cursor = "pointer"}
+          // onMouseLeave={() => document.body.style.cursor = "initial"}
+          perfectDrawEnabled={false}
           {...shapeProps}
           onTransformEnd={(e) => {
-            // transformer is changing scale of the node
-            // and NOT its width or height
-            // but in the store we have only width and height
-            // to match the data better we will reset scale on transform end
             const node = shapeRef.current;
             const scaleX = node.scaleX();
             const scaleY = node.scaleY();
-
-            // we will reset it back
-            // node.scaleX(1);
-            // node.scaleY(1);
-
             onChange({
               ...node.attrs,
               x: node.x(),
@@ -60,18 +55,6 @@ const URLImage = ({ _id, src, shapeProps, isSelected, onSelect, onChange }) => {
             });
           }}
         />
-      {/* {isSelected && <Rect 
-        x={(shapeX) + 5}
-        y={shapeY}
-        width={10}
-        height={10}
-        scaleX={1}
-        scaleY={1}
-        onClick={() => setIsisOpenSignCM(prev => !prev)}
-        onMouseOver={() => document.body.style.cursor = "pointer"}
-        onMouseLeave={() => document.body.style.cursor = "initial"}
-        fill="red"
-      />} */}
       </Group>
       {isSelected && (
         <Transformer
@@ -93,8 +76,6 @@ const URLImage = ({ _id, src, shapeProps, isSelected, onSelect, onChange }) => {
           }}
         />
       )}
-        {/* <ContextMenu /> */}
-
     </React.Fragment>
   );
 };

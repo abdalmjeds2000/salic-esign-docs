@@ -1,4 +1,4 @@
-import { useDisclosure } from '@chakra-ui/react';
+import { useDisclosure, useToast } from '@chakra-ui/react';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { docSchema } from '../data/docSchema';
 
@@ -20,10 +20,10 @@ export const ContextProvider = ({ children }) => {
   const totalPages = documentSchema?.numOfPages;
   const [isOpenSignCM, setIsisOpenSignCM] = useState(false);
 
-  const [selectedSignPaths, setSelectedSignPaths] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const [newSignAttrs, setNewSignAttrs] = useState({});
+  const toast = useToast();
 
 
 
@@ -111,6 +111,18 @@ export const ContextProvider = ({ children }) => {
 
 
 
+  // warning user if he choose a high quality of document
+  useEffect(() => {
+    if(pdfQuality === 3) {
+      toast({
+        title: "Note, you have chosen the high quality of the document, in case the application is heavy, please choose a lower display quality.",
+        status: "warning",
+        isClosable: true,
+      })
+    } else {
+      toast.closeAll();
+    }
+  }, [pdfQuality]);
 
   return (
     <StateContext.Provider value={{ 
@@ -136,7 +148,6 @@ export const ContextProvider = ({ children }) => {
       isMobile,
       isOpenSignCM, setIsisOpenSignCM,
       handleDeleteSignature,
-      selectedSignPaths, setSelectedSignPaths,
       isOpen, onOpen, onClose,
       newSignAttrs, setNewSignAttrs
     }}>

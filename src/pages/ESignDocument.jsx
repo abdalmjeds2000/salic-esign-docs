@@ -6,7 +6,7 @@ import { Skeleton, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spinner,
 import ToolsHeader from "../components/ToolsHeader";
 import useOnScreen from "../hooks/useOnScreen";
 import { Signatures, SignaturePad } from "../components/signature-pad/SignaturePad";
-import { Image, Layer, Rect, Stage } from "react-konva";
+import { Layer, Stage } from "react-konva";
 import URLImage from "../components/konva-components/URLImage";
 
 
@@ -47,7 +47,7 @@ import URLImage from "../components/konva-components/URLImage";
   }
 
   const Thumb = ({ item, sliderValue }) => {
-    const { activePage, setActivePage } = useStateContext();
+    const { activePage, setActivePage, isMobile } = useStateContext();
 
     const thumbRef = useRef();
     const [loading, setLoading] = useState(true);
@@ -79,12 +79,22 @@ import URLImage from "../components/konva-components/URLImage";
       }
     }, [isOnScreen, timer]);
 
+
+    const desktopStylesPage = {
+      width: (item.width / 4) * (sliderValue * 0.5), 
+      height: (item.height / 4) * (sliderValue * 0.5)
+    }
+    const mobileStylesPage = {
+      width: 100, 
+      height: "fit-content",
+      minHeight: 100,
+    }
     return (
       <div 
         key={item.Index} 
         id={`thumb_${item.Index}`} 
         ref={thumbRef}
-        className={`thumb-item flex flex-col items-center w-fit h-fit transition-all cursor-pointer bg-neutral-300 dark:bg-neutral-900 dark:bg-opacity-25 bg-opacity-25 dark:hover:bg-opacity-100 hover:bg-opacity-100 ${activePage === item.Index ? "bg-opacity-100 dark:bg-opacity-100" : ""} p-4 pb-1 rounded-lg`}
+        className={`thumb-item flex flex-col items-center w-fit h-fit transition-all cursor-pointer bg-neutral-300 dark:bg-neutral-900 dark:bg-opacity-25 bg-opacity-25 dark:hover:bg-opacity-100 hover:bg-opacity-100 ${activePage === item.Index ? "bg-opacity-100 dark:bg-opacity-100" : ""} p-4 pb-1 max-md:p-0 max-md:rounded-sm rounded-lg`}
         onClick={() => {
           setActivePage(item.Index);
           const element = document.getElementById(`page_${item.Index}`);
@@ -93,8 +103,8 @@ import URLImage from "../components/konva-components/URLImage";
       >
         <div className="thumb-head"></div>
         <div 
-          className={`thumb-body relative rounded-sm overflow-hidden bg-white shadow-xl ${activePage === item.Index && "outline outline-4 outline-slate-400 dark:outline-slate-400"}`} 
-          style={{width: (item.width / 4) * (sliderValue * 0.5), height: (item.height / 4) * (sliderValue * 0.5)}}
+          className={`thumb-body relative rounded-sm max-md:rounded-none overflow-hidden bg-white shadow-xl ${activePage === item.Index && "outline outline-4 outline-slate-400 dark:outline-slate-400"}`} 
+          style={isMobile ? mobileStylesPage : desktopStylesPage}
         >
           <Skeleton
             height='100%'
@@ -109,7 +119,7 @@ import URLImage from "../components/konva-components/URLImage";
             />}
           </Skeleton>
         </div>
-        <div className={`thumb-footer text-text-color dark:text-white ${activePage === item.Index ? "text-slate-500 font-semibold" : ""}`}>
+        <div className={`thumb-footer text-text-color dark:text-white max-md:hidden ${activePage === item.Index ? "text-slate-500 font-semibold" : ""}`}>
           {item.Index}
         </div>
       </div>
@@ -117,19 +127,20 @@ import URLImage from "../components/konva-components/URLImage";
   }
   const Thumbs = ({ pages, actions }) => {
     const [sliderValue, setSliderValue] = React.useState(3);
+    const { activeThumbnailes } = useStateContext();
 
     return (
-      <div className='w-80 bg-neutral-200 drop-shadow-lg border-r-4 border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 flex-col overflow-hidden resize-x p-4 hidden md:flex'>
-        <div className="thumbs-header mb-4">
+      <div style={{ display: activeThumbnailes ? "block" : "none"}} className='w-80 bg-neutral-200 drop-shadow-lg border-r-4 border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 flex-col overflow-hidden resize-x p-4 max-md:fixed max-md:z-50 max-md:left-0 max-md:top-14 max-md:h-full max-md:w-32 max-md:py-2 max-md:px-0.5 max-md:shadow-2xl'>
+        <div className="max-md:hidden thumbs-header mb-4">
           <SliderThumbs getSliderValue={setSliderValue} />
           {/* <h3 className="font-semibold text-xl text-text-color dark:text-white">Thumbnails</h3> */}
         </div>
         <Scrollbars>
-          <div className='thumbs-body flex justify-center flex-wrap gap-y-4 gap-x-2'>
+          <div className='thumbs-body flex justify-center flex-wrap gap-y-4 max-md:gap-y-2 gap-x-2 max-md:py-1'>
             {
-              pages?.map((item) => {
+              pages?.map((item, i) => {
                 return (
-                  <Thumb item={item} sliderValue={sliderValue} />
+                  <Thumb key={i} item={item} sliderValue={sliderValue} />
                 )
               })
             }
@@ -180,12 +191,9 @@ import URLImage from "../components/konva-components/URLImage";
       if(isOnScreen && !isReady && timer >= 3) {
         fetchPage();
       }
-      if(isOnScreen && timer >= 1) {
-        console.log(item.Index);
-        setActivePage(item.Index);
-        // const element = document.getElementById(`thumb_${item.Index}`);
-        // if (element) element.scrollIntoView({ behavior: "smooth" });
-      }
+      // if(isOnScreen && timer >= 1) {
+      //   setActivePage(item.Index);
+      // }
 
     }, [isOnScreen, timer]);
     // to refetch images after user change pdf quality
@@ -208,6 +216,7 @@ import URLImage from "../components/konva-components/URLImage";
         width={item.width * scale}
         height={item.height * scale}
         scale={{x: scale, y: scale}}
+        rotation={rotation}
         style={{position: "absolute", top: 0, left: 0}}
         onMouseDown={checkDeselect}
         onTouchStart={checkDeselect}
@@ -215,39 +224,32 @@ import URLImage from "../components/konva-components/URLImage";
         <Layer>
           {item?.signaturesPlaces?.map((sign, i) => (
             <URLImage
+              key={i}
               src={require("../assets/images/sign_placeholder.png")}
               shapeProps={{
                 ...sign,
-                // x: 200,
-                // y: 580,
-                // scaleX: 1,
-                // scaleY: 1,
-                // width: 200,
-                // height: 120,
                 draggable: false,
-                onDblClick: (e) => {
-                  setNewSignAttrs(sign);
+                onClick: (e) => {
+                  setNewSignAttrs({...sign, page: item.Index});
                   onOpen();
-                  console.log(e);
                 },
-                onDblTap: (e) => {
-                  setNewSignAttrs(sign);
+                onTap: (e) => {
+                  setNewSignAttrs({...sign, page: item.Index});
                   onOpen();
-                  console.log(e);
-                }
+                },
               }}
             />
           ))}
+          <Signatures 
+            pageNumber={item.Index} 
+            stageProps={{
+              width: item.width * scale,
+              height: item.height * scale,
+              scale: {x: scale, y: scale},
+              style: {position: "absolute", top: 0, left: 0}
+            }}
+          />
         </Layer>
-        <Signatures 
-          pageNumber={item.Index} 
-          stageProps={{
-            width: item.width * scale,
-            height: item.height * scale,
-            scale: {x: scale, y: scale},
-            style: {position: "absolute", top: 0, left: 0}
-          }}
-        />
       </Stage>
     )
     
@@ -332,7 +334,8 @@ const ESignDocument = () => {
 
       <main className="flex flex-1 h-full" style={{ paddingTop: /* isMobile ? "3.5rem" : */ "5.5rem" }}>
         <SignaturePad isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
-        {activeThumbnailes && <Thumbs pages={documentSchema.pages} actions={documentSchema.actions} />}
+        {/* {activeThumbnailes && <Thumbs pages={documentSchema.pages} actions={documentSchema.actions} />} */}
+        <Thumbs pages={documentSchema.pages} actions={documentSchema.actions} />
         <Document pages={documentSchema.pages} />
       </main>
     </div>
