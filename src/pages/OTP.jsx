@@ -35,7 +35,7 @@ const OTP = () => {
             <img 
               src={require("../assets/images/horizontal-logo.png")} alt="salic_logo" 
               className='w-48' 
-              style={{ height: 30, filter: currentMode === "dark" ? "grayscale(1) invert(1)" : "" }}
+              style={{ filter: currentMode === "dark" ? "grayscale(1) invert(1)" : "" }}
             />
           </div>
           <Button
