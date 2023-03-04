@@ -19,6 +19,13 @@ export const ContextProvider = ({ children }) => {
   const [selectedId, selectShape] = React.useState(null);
   const totalPages = documentSchema?.numOfPages;
   const [isOpenSignCM, setIsisOpenSignCM] = useState(false);
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+
+
+  const [datesList, setDatesList] = useState([]);
+  const [showDateContextMenu, setShowDateContextMenu] = useState(false);
+  const [dateContextMenuPosition, setDateContextMenuPosition] = useState({ x: 0, y: 0, _id: null });
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -75,6 +82,29 @@ export const ContextProvider = ({ children }) => {
     }
   }
 
+  const onContextMenu = (event) => {
+    event.evt.preventDefault(); // prevent default context menu
+    setShowContextMenu(true);
+    if(event.evt.type === "contextmenu") {
+      setContextMenuPosition({ x: event.evt.clientX, y: event.evt.clientY });
+    } else if(event.evt.type === "touchend") {
+      setContextMenuPosition({ x: event.evt.changedTouches[0]?.clientX, y: event.evt.changedTouches[0]?.clientY });
+    }
+  }
+  function handleCloseContextMenu() {
+    setShowContextMenu(false);
+    setShowDateContextMenu(false);
+  }
+
+  const onDateItemContextMenu = (event) => {
+    event.evt.preventDefault(); // prevent default context menu
+    setShowDateContextMenu(true);
+    if(event.evt.type === "contextmenu") {
+      setDateContextMenuPosition({ x: event.evt.clientX, y: event.evt.clientY, _id: event.target.attrs._id });
+    } else if(event.evt.type === "touchend") {
+      setDateContextMenuPosition({ x: event.evt.changedTouches[0]?.clientX, y: event.evt.changedTouches[0]?.clientY, _id: event.target.attrs._id });
+    }
+  }
 
   var isMobile = (/iphone|ipad|ipod|android|blackberry|mini|windows\sce|palm/i.test(navigator.userAgent.toLowerCase()));
 
@@ -94,13 +124,27 @@ export const ContextProvider = ({ children }) => {
     const newSignatureList = signatures.filter(sign => sign._id !== selectedId);
     setSignatures(newSignatureList);
     selectShape(null);
+    setShowContextMenu(false);
   }
   const keydownHandler = (e) => {
-    e.preventDefault();
     if(e.key === "Delete" && selectedId) {
+      e.preventDefault();
       handleDeleteSignature();
     }
   }
+
+
+  const handelAddDate = (date) => {
+    const newDatesList = [...datesList, date];
+    setDatesList(newDatesList);
+  }
+  // handle delete date
+  const handleDeleteDate = (id) => {
+    const newDatesList = datesList?.filter(date => date._id !== id);
+    setDatesList(newDatesList);
+    setShowDateContextMenu(false);
+  }
+
   useEffect(() => {
     document.addEventListener("keydown", keydownHandler);
 
@@ -149,7 +193,10 @@ export const ContextProvider = ({ children }) => {
       isOpenSignCM, setIsisOpenSignCM,
       handleDeleteSignature,
       isOpen, onOpen, onClose,
-      newSignAttrs, setNewSignAttrs
+      newSignAttrs, setNewSignAttrs,
+      showContextMenu, setShowContextMenu, contextMenuPosition, onContextMenu, handleCloseContextMenu,
+      datesList, setDatesList,
+      handelAddDate, handleDeleteDate, onDateItemContextMenu, showDateContextMenu, dateContextMenuPosition
     }}>
       {children}
     </StateContext.Provider>

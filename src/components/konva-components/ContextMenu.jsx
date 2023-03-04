@@ -1,21 +1,21 @@
-import React from 'react'
-import { createPortal } from 'react-dom';
-import { useStateContext } from '../../context/ContextProvider';
-const ContextMenu = ({ id }) => {
-  const { signatures } = useStateContext();
+import React, { memo } from "react";
+import ReactDOM from "react-dom";
 
-  const signData = signatures.filter(item => item._id === id)[0];
-
-  const shapeX = signData?.x + (signData?.width * signData?.scaleX) || 0 || 0;
-  const shapeY = signData?.y || 0;
-  console.log(shapeX, shapeY);
-
-  return createPortal(
-    <div className='absolute bg-red-600 z-50' style={{ left: shapeX, top: shapeY }}>
-      HELLOOOOOOOOOOOOOOOO ({id})
-    </div>,
-    document.getElementById("portals-content")
+const ContextMenu = memo(function withMemo(props) {
+  return (
+    ReactDOM.createPortal(
+      <div
+        className="py-2 rounded-lg absolute bg-white flex gap-1 z-50"
+        style={{
+          left: props.x || 0,
+          top: props.y || 0,
+        }}
+      >
+        {props.children}
+      </div>,
+      document.getElementById("portals-content")
+    )
   );
-}
+});
 
-export default ContextMenu
+export default ContextMenu;

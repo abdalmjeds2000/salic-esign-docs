@@ -1,13 +1,17 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useStateContext } from "../context/ContextProvider";
 import Header from "../components/Header";
 import { Scrollbars } from 'react-custom-scrollbars-2';
-import { Skeleton, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spinner, Stack, Tooltip, useDisclosure } from "@chakra-ui/react";
+import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Skeleton, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spinner, Text, Tooltip, useDisclosure } from "@chakra-ui/react";
 import ToolsHeader from "../components/ToolsHeader";
 import useOnScreen from "../hooks/useOnScreen";
-import { Signatures, SignaturePad } from "../components/signature-pad/SignaturePad";
-import { Layer, Stage } from "react-konva";
+import { Signatures, SignaturePad, DrawDates } from "../components/signature-pad/SignaturePad";
+import { Layer, Rect, Stage } from "react-konva";
 import URLImage from "../components/konva-components/URLImage";
+import ContextMenu from "../components/konva-components/ContextMenu";
+import { HiOutlineTrash } from "react-icons/hi";
+import { CgArrowsExchange } from "react-icons/cg";
+import { BiMessageAltDetail } from "react-icons/bi";
 
 
   function SliderThumbs({ getSliderValue }) {
@@ -54,20 +58,27 @@ import URLImage from "../components/konva-components/URLImage";
     const [isReady, setIsReady] = useState(false);
     const isOnScreen = useOnScreen(thumbRef);
     const [timer, setTimer] = useState(0);
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
-    const fetchPage = async () => {
+
+    const fetchPage = useCallback(async () => {
       setLoading(true);
       setIsReady(true);
       setLoading(false);
-    }
+    }, []);
+
+    const handelIncTimer = useCallback(() => { setTimer(prev => prev += 1); }, [timer]);
+    const handelResetTimer = useCallback(() => { setTimer(0); }, [timer]);
 
     useEffect(() => {
       if(!isReady) {
         const counter = setInterval(() => {
           if(isOnScreen) {
-            setTimer(prev => prev += 1);
+            handelIncTimer();
+            // setTimer(prev => prev += 1);
           } else {
-            setTimer(0);
+            handelResetTimer();
+            // setTimer(0);
           }
         }, 500);
         return () => clearInterval(counter);
@@ -85,9 +96,9 @@ import URLImage from "../components/konva-components/URLImage";
       height: (item.height / 4) * (sliderValue * 0.5)
     }
     const mobileStylesPage = {
-      width: 100, 
+      width: 80, 
       height: "fit-content",
-      minHeight: 100,
+      minHeight: 80,
     }
     return (
       <div 
@@ -95,15 +106,10 @@ import URLImage from "../components/konva-components/URLImage";
         id={`thumb_${item.Index}`} 
         ref={thumbRef}
         className={`thumb-item flex flex-col items-center w-fit h-fit transition-all cursor-pointer bg-neutral-300 dark:bg-neutral-900 dark:bg-opacity-25 bg-opacity-25 dark:hover:bg-opacity-100 hover:bg-opacity-100 ${activePage === item.Index ? "bg-opacity-100 dark:bg-opacity-100" : ""} p-4 pb-1 max-md:p-0 max-md:rounded-sm rounded-lg`}
-        onClick={() => {
-          setActivePage(item.Index);
-          const element = document.getElementById(`page_${item.Index}`);
-          if (element) element.scrollIntoView({ behavior: "smooth" });
-        }}
       >
         <div className="thumb-head"></div>
         <div 
-          className={`thumb-body relative rounded-sm max-md:rounded-none overflow-hidden bg-white shadow-xl ${activePage === item.Index && "outline outline-4 outline-slate-400 dark:outline-slate-400"}`} 
+          className={`thumb-body relative overflow-hidden bg-white shadow-xl ${activePage === item.Index && "outline outline-4 outline-slate-400 dark:outline-slate-400"}`} 
           style={isMobile ? mobileStylesPage : desktopStylesPage}
         >
           <Skeleton
@@ -112,11 +118,54 @@ import URLImage from "../components/konva-components/URLImage";
             fadeDuration={2}
             bg='white'
           >
-            {!loading && <img 
-              src={`https://salicapi.com/api/Signature/GetThumbnailPage?Page=${item.Index-1}`} alt=""
-              width="100%" height="100%" 
-              loading="lazy"
-            />}
+            {!loading && 
+              <div className="relative">
+                <img 
+                  src={`https://salicapi.com/api/Signature/GetThumbnailPage?Page=${item.Index-1}`} alt=""
+                  width="100%" height="100%" 
+                  loading="lazy"
+                  onClick={() => {
+                    setActivePage(item.Index);
+                    const element = document.getElementById(`page_${item.Index}`);
+                    if (element) element.scrollIntoView({ behavior: "smooth" });
+                  }}
+                />
+                <span className="md:hidden absolute bottom-0.5 right-0 text-xs text-neutral-500 px-1">{item.Index}</span>
+                <span className="absolute left-1 top-1">
+                  {item.Index === 1 || item.Index === 3 ? <div>
+                    <Button size="xs" rounded="full" paddingX={1} className="shadow-md" colorScheme="green" onClick={onOpen}><BiMessageAltDetail size={16} /></Button>
+                    <Modal blockScrollOnMount={false} isOpen={isOpen} onClose={onClose}>
+                      <ModalOverlay />
+                      <ModalContent>
+                        <ModalHeader>
+                          <span className="flex items-center gap-2">
+                            <BiMessageAltDetail size={18} /> Inviter Notes
+                          </span>
+                        </ModalHeader>
+                        <ModalCloseButton />
+                        <ModalBody>
+                          <Text fontWeight='bold' mb='1rem'>
+                            Here, You can Read Inviter Notes
+                          </Text>
+                          <p>
+                            Sit nulla est ex deserunt exercitation anim occaecat. Nostrud ullamco deserunt aute id consequat veniam incididunt duis in sint irure nisi. Mollit officia cillum Lorem ullamco minim nostrud elit officia tempor esse quis.
+                          </p>
+                          <p>
+                            Sunt ad dolore quis aute consequat. Magna exercitation reprehenderit magna aute tempor cupidatat consequat elit dolor adipisicing. Mollit dolor eiusmod sunt ex incididunt cillum quis. Velit duis sit officia eiusmod Lorem aliqua enim laboris do dolor eiusmod. Et mollit incididunt nisi consectetur esse laborum eiusmod pariatur proident Lorem eiusmod et. Culpa deserunt nostrud ad veniam.
+                          </p>
+                        </ModalBody>
+
+                        <ModalFooter>
+                          <Button colorScheme='blue' mr={3} onClick={onClose}>
+                            OK
+                          </Button>
+                        </ModalFooter>
+                      </ModalContent>
+                    </Modal>
+                  </div> : null}
+                </span>
+              </div>
+            }
           </Skeleton>
         </div>
         <div className={`thumb-footer text-text-color dark:text-white max-md:hidden ${activePage === item.Index ? "text-slate-500 font-semibold" : ""}`}>
@@ -125,12 +174,12 @@ import URLImage from "../components/konva-components/URLImage";
       </div>
     )
   }
-  const Thumbs = ({ pages, actions }) => {
+  const Thumbs = ({ pages }) => {
     const [sliderValue, setSliderValue] = React.useState(3);
     const { activeThumbnailes } = useStateContext();
 
     return (
-      <div style={{ display: activeThumbnailes ? "block" : "none"}} className='w-80 bg-neutral-200 drop-shadow-lg border-r-4 border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 flex-col overflow-hidden resize-x p-4 max-md:fixed max-md:z-50 max-md:left-0 max-md:top-14 max-md:h-full max-md:w-32 max-md:py-2 max-md:px-0.5 max-md:shadow-2xl'>
+      <div style={{ display: activeThumbnailes ? "block" : "none"}} className='w-80 bg-neutral-200 drop-shadow-lg border-r-4 border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 flex-col overflow-hidden resize-x p-4 max-md:fixed max-md:z-50 max-md:left-0 max-md:top-14 max-md:h-full max-md:w-24 max-md:py-2 max-md:px-0.5 max-md:shadow-2xl max-md:pb-16'>
         <div className="max-md:hidden thumbs-header mb-4">
           <SliderThumbs getSliderValue={setSliderValue} />
           {/* <h3 className="font-semibold text-xl text-text-color dark:text-white">Thumbnails</h3> */}
@@ -153,14 +202,15 @@ import URLImage from "../components/konva-components/URLImage";
 
   const Page = ({item, totalPages}) => {
     const pageRef = useRef();
-    const { scale, rotation, setActivePage, pdfQuality, selectShape, onOpen, setNewSignAttrs } = useStateContext();
+    const { scale, rotation, selectedId, pdfQuality, selectShape, onOpen, setNewSignAttrs, handleCloseContextMenu, showContextMenu, contextMenuPosition, setShowContextMenu, handleDeleteSignature, handelAddDate, showDateContextMenu, dateContextMenuPosition, handleDeleteDate } = useStateContext();
     const [isReady, setIsReady] = useState(false);
     const [imgData, setImgData] = useState({});
     const [loading, setLoading] = useState(true);
     const [timer, setTimer] = useState(0);
+    const [isLoaded, setIsLoaded] = useState(false);
     const isOnScreen = useOnScreen(pageRef);
 
-    const fetchPage = async () => {
+    const fetchPage = useCallback(async () => {
       setLoading(true);
       setImgData({ 
         // src: require(`../assets/images/imagesfile/Logotype ( PDFDrive )_page-${item.Index.toString().padStart(4, '0')}.jpg`),
@@ -174,14 +224,19 @@ import URLImage from "../components/konva-components/URLImage";
       setIsReady(true);
 
       setLoading(false);
-    }
+    }, []);
+    const handelIncTimer = useCallback(() => { setTimer(prev => prev += 1); }, [timer]);
+    const handelResetTimer = useCallback(() => { setTimer(0); }, [timer]);
+    
     useEffect(() => {
       if(!isReady) {
         const counter = setInterval(() => {
           if(isOnScreen) {
-            setTimer(prev => prev += 1);
+            handelIncTimer();
+            // setTimer(prev => prev += 1);
           } else {
-            setTimer(0);
+            handelResetTimer();
+            // setTimer(0);
           }
         }, 500);
         return () => clearInterval(counter);
@@ -194,7 +249,6 @@ import URLImage from "../components/konva-components/URLImage";
       // if(isOnScreen && timer >= 1) {
       //   setActivePage(item.Index);
       // }
-
     }, [isOnScreen, timer]);
     // to refetch images after user change pdf quality
     useEffect(() => {
@@ -207,50 +261,75 @@ import URLImage from "../components/konva-components/URLImage";
       const clickedOnEmpty = e.target === e.target.getStage();
       if (clickedOnEmpty) {
         selectShape(null);
+        setShowContextMenu(false);
       }
     };
 
 
+
+
     const Drawing = () => (
-      <Stage
-        width={item.width * scale}
-        height={item.height * scale}
-        scale={{x: scale, y: scale}}
-        rotation={rotation}
-        style={{position: "absolute", top: 0, left: 0}}
-        onMouseDown={checkDeselect}
-        onTouchStart={checkDeselect}
-      >
-        <Layer>
-          {item?.signaturesPlaces?.map((sign, i) => (
-            <URLImage
-              key={i}
-              src={require("../assets/images/sign_placeholder.png")}
-              shapeProps={{
-                ...sign,
-                draggable: false,
-                onClick: (e) => {
-                  setNewSignAttrs({...sign, page: item.Index});
-                  onOpen();
-                },
-                onTap: (e) => {
-                  setNewSignAttrs({...sign, page: item.Index});
-                  onOpen();
-                },
-              }}
-            />
-          ))}
-          <Signatures 
-            pageNumber={item.Index} 
-            stageProps={{
-              width: item.width * scale,
-              height: item.height * scale,
-              scale: {x: scale, y: scale},
-              style: {position: "absolute", top: 0, left: 0}
-            }}
-          />
-        </Layer>
-      </Stage>
+      <>
+        <Stage
+          width={item.width * scale}
+          height={item.height * scale}
+          scale={{x: scale, y: scale}}
+          rotation={rotation}
+          style={{position: "absolute", top: 0, left: 0}}
+          onMouseDown={checkDeselect}
+          onTouchStart={checkDeselect}
+        >
+          <Layer>
+            {item?.signaturesPlaces?.map((sign, i) => (
+              <URLImage
+                key={i}
+                src={require("../assets/images/sign_placeholder.png")}
+                shapeProps={{
+                  ...sign,
+                  draggable: false,
+                  shadowBlur: 10,
+                  shadowOpacity: 0.15,
+                  shadowOffsetY: 2,
+                  onClick: (e) => {
+                    setNewSignAttrs({...sign, page: item.Index});
+                    onOpen();
+                    selectShape(null);
+                  },
+                  onTap: (e) => {
+                    setNewSignAttrs({...sign, page: item.Index});
+                    onOpen();
+                    selectShape(null);
+                  },
+                }}
+              />
+            ))}
+            {item?.dates?.map((date, i) => (
+              <Rect
+                key={i}
+                x={date.x}
+                y={date.y}
+                width={70}
+                height={15}
+                fill="#fff"
+                shadowColor="black"
+                shadowOffsetY={2}
+                shadowBlur={5}
+                shadowOpacity={0.15}
+                onClick={(e) => {
+                  const newItem = {...date, _id: i+1, page: item.Index, dateText: new Date().toLocaleDateString(), width: 70, height: 15, scaleX: 1, scaleY: 1};
+                  handelAddDate(newItem);
+                }}
+                onTap={(e) => {
+                  const newItem = {...date, _id: i+1, page: item.Index, dateText: new Date().toLocaleDateString(), width: 70, height: 15, scaleX: 1, scaleY: 1};
+                  handelAddDate(newItem);
+                }}
+              />
+            ))}
+            <Signatures pageNumber={item.Index} />
+            <DrawDates pageNumber={item.Index} />
+          </Layer>
+        </Stage>
+      </>
     )
     
     return (
@@ -263,17 +342,47 @@ import URLImage from "../components/konva-components/URLImage";
             !loading
             ? (
               <>
-                <Drawing />
+                {isLoaded && <Drawing />}
                 <img 
                   src={imgData.src} alt=""
                   width={imgData.width * scale} height={imgData.height * scale} 
-                  loading="lazy"
+                  onLoad={() => setIsLoaded(true)}
                 />
               </>
             ) : (
               <div className="flex justify-center mt-14"><Spinner size='md' /></div>
             )
           }
+          {showContextMenu && selectedId !== null && (
+            <ContextMenu x={contextMenuPosition.x} y={contextMenuPosition.y} onClose={handleCloseContextMenu}>
+              <ul className="bg-neutral-100 w-32">
+                <li
+                  className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white cursor-pointer transition-all"
+                  onClick={onOpen}
+                >
+                  <CgArrowsExchange size={18} /> Change
+                </li>
+                <li
+                  className="flex items-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white cursor-pointer transition-all"
+                  onClick={handleDeleteSignature}
+                >
+                  <HiOutlineTrash size={18} /> Delete
+                </li>
+              </ul>
+            </ContextMenu>
+          )}
+          {showDateContextMenu && (
+            <ContextMenu x={dateContextMenuPosition.x} y={dateContextMenuPosition.y} onClose={handleCloseContextMenu}>
+              <ul className="bg-neutral-100 w-32">
+                <li
+                  className="flex items-center gap-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white cursor-pointer transition-all"
+                  onClick={() => handleDeleteDate(dateContextMenuPosition._id)}
+                >
+                  <HiOutlineTrash size={18} /> Delete
+                </li>
+              </ul>
+            </ContextMenu>
+          )}
         </div>
         <div className='mt-2 h-4'>
           <p className="text-sm float-left max-md:hidden">78d11272-86b3-49fe-a3d5-284ecf48ec01</p>
@@ -332,7 +441,7 @@ const ESignDocument = () => {
       <Header docSchema={documentSchema} />
       <ToolsHeader actions={documentSchema.actions} />
 
-      <main className="flex flex-1 h-full" style={{ paddingTop: /* isMobile ? "3.5rem" : */ "5.5rem" }}>
+      <main className="flex flex-1 h-full max-md:h-[86vh] md:pt-[90px]">
         <SignaturePad isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
         {/* {activeThumbnailes && <Thumbs pages={documentSchema.pages} actions={documentSchema.actions} />} */}
         <Thumbs pages={documentSchema.pages} actions={documentSchema.actions} />

@@ -1,5 +1,5 @@
-import { Button, Kbd, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tooltip, Tr, useDisclosure } from "@chakra-ui/react";
 import React from "react";
+import { Button, Kbd, Menu, MenuButton, MenuItem, MenuList, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tooltip, Tr, useDisclosure } from "@chakra-ui/react";
 import { TbFileInfo, TbSettings } from "react-icons/tb";
 import { HiOutlineTrash } from "react-icons/hi";
 import { useStateContext } from "../context/ContextProvider";
@@ -116,7 +116,7 @@ const DocumentInformation = ({ dataSchema, numOfPages }) => {
     </div>
   );
 };
-const SettingsMenu = ({ data, numOfPages }) => {
+const SettingsMenu = () => {
   const { handleFullScreen } = useStateContext();
   return (
     <Menu size='xs'>
@@ -135,14 +135,11 @@ const SettingsMenu = ({ data, numOfPages }) => {
 
 
 const ToolsHeader = ({ actions }) => {
-  const { isMobile, selectedId, handleDeleteSignature } = useStateContext();
+  const { selectedId, handleDeleteSignature } = useStateContext();
 
-  // if(isMobile) {
-  //   return <></>
-  // }
   return (
-    <div className="fixed top-14 shadow-2xl dark:drop-shadow-xl z-[9] w-full">
-      <div className="h-9 px-3 py-0 md:px-6 bg-[#f0f2f4] dark:bg-secondary-dark-bg dark:text-white text-text-color">
+    <div className="fixed top-14 shadow-2xl dark:drop-shadow-xl z-[9] w-full max-md:relative max-md:top-0">
+      <div className="h-9 max-md:h-[5vh] px-3 py-0 md:px-6 bg-[#f0f2f4] dark:bg-secondary-dark-bg dark:text-white text-text-color">
         <div className="h-full flex justify-between items-center overflow-auto">
           <div className="flex justify-center items-center gap-1">
             <SettingsMenu />
@@ -169,14 +166,14 @@ const ToolsHeader = ({ actions }) => {
 
 
           <div className='flex gap-2 items-center'>
-            {selectedId && <Button 
+            {/* {selectedId && <Button 
               colorScheme='red' 
               size="xs" 
               variant="solid" 
               onClick={handleDeleteSignature}
             >
               <HiOutlineTrash size={16} />
-            </Button>}
+            </Button>} */}
           </div>
 
 

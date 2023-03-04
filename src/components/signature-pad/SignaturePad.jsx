@@ -1,5 +1,5 @@
-import { Button, FormLabel, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Radio, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tooltip, useDisclosure, useRadio, useRadioGroup, useToast } from '@chakra-ui/react';
-import React, { useReducer, useRef, useState } from 'react';
+import React, { memo, useEffect, useReducer, useRef, useState } from 'react';
+import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Stack, Tab, TabList, TabPanel, TabPanels, Tabs, Tooltip, useToast } from '@chakra-ui/react';
 import { FaEraser, FaRedo, FaUndo } from 'react-icons/fa';
 import { AiOutlinePlus, AiOutlineMinus } from 'react-icons/ai';
 import { useStateContext } from '../../context/ContextProvider';
@@ -8,6 +8,7 @@ import { ReactSketchCanvas } from "react-sketch-canvas";
 import { ImPencil2 } from 'react-icons/im';
 import { HiOutlineTrash } from 'react-icons/hi';
 import { MdOutlineFileUpload } from 'react-icons/md';
+import { Text } from 'react-konva';
 
 
 
@@ -33,7 +34,7 @@ const penColorsList = [
 
 
 export const SignaturePad = () => {
-  const { signatures, setSignatures, selectShape, isOpen, onClose, newSignAttrs } = useStateContext();
+  const { signatures, setSignatures, selectShape, isOpen, onClose, newSignAttrs, selectedId, setShowContextMenu } = useStateContext();
   const signatureCanvasRef = useRef();
   const [imageBase64, setImageBase64] = useState('');
   const [penWidth, dispatchPW] = useReducer(reducerPenWidth, 4);
@@ -43,22 +44,57 @@ export const SignaturePad = () => {
   const onModalClose = () => {
     onClose();
   }
+
+  const isUpdateMode = selectedId !== null;
+  let selectedItem;
+  let itemType;
+  if(isUpdateMode) {
+    selectedItem = signatures.filter(s => s._id === selectedId)[0];
+    itemType = selectedItem.type;
+  }
+  useEffect(() => {
+    if(isOpen && isUpdateMode) {
+      if(itemType === "upload") {
+        setImageBase64(selectedItem.imageData);
+      }
+    } else {
+      setImageBase64("");
+    }
+  }, [isUpdateMode, isOpen])
+
   const handleCreateDrawSignature = async () => {
     const paths = await signatureCanvasRef.current.exportPaths();
+    const imgData = await signatureCanvasRef.current.exportImage("png");
+
     if(paths?.length) {
-      const imgData = await signatureCanvasRef.current.exportImage("svg");
-      const item = {
-        _id: signatures.length + 1,
-        // page: activePage,
-        imageData: imgData, signPaths: paths,
-        x: 100, y: 100,
-        width: 192, height: 108,
-        scaleX: 1, scaleY: 1,
-        ...newSignAttrs
-      };
-      selectShape(item._id);
-      setSignatures(prev => [...prev, item]);
-      onModalClose();
+      if(isUpdateMode) {
+        const upatedItem = {
+          ...selectedItem,
+          imageData: imgData, signPaths: paths,
+        };
+        const updatedSignatures = signatures.map(sign => {
+          if(sign._id === upatedItem._id) {
+            sign = upatedItem;
+          }
+          return sign
+        });
+        setSignatures(updatedSignatures);
+        onModalClose();
+      } else {
+        const item = {
+          _id: signatures.length + 1,
+          // page: activePage,
+          imageData: imgData, signPaths: paths,
+          x: 100, y: 100,
+          width: 192, height: 108,
+          scaleX: 1, scaleY: 1,
+          type: "draw",
+          ...newSignAttrs
+        };
+        selectShape(item._id);
+        setSignatures(prev => [...prev, item]);
+        onModalClose();
+      }
     } else {
       toast({
         title: "Draw First",
@@ -66,23 +102,41 @@ export const SignaturePad = () => {
         isClosable: true,
       });
     }
+    setShowContextMenu(false);
   }
+
   const handleCreateUploadSignature = async () => {
     if(imageBase64 && imageBase64.length) {
       const imgData = imageBase64;
-      const item = {
-        _id: signatures.length + 1,
-        // page: activePage,
-        imageData: imgData,
-        x: 100, y: 100,
-        width: 192, height: 108,
-        scaleX: 1, scaleY: 1,
-        ...newSignAttrs
-      };
-      selectShape(item._id);
+      if(isUpdateMode) {
+        const upatedItem = {
+          ...selectedItem,
+          imageData: imgData,
+        };
+        const updatedSignatures = signatures.map(sign => {
+          if(sign._id === upatedItem._id) {
+            sign = upatedItem;
+          }
+          return sign
+        })
+        setSignatures(updatedSignatures);
+      } else {
+        const item = {
+          _id: signatures.length + 1,
+          // page: activePage,
+          imageData: imgData,
+          x: 100, y: 100,
+          width: 192, height: 108,
+          scaleX: 1, scaleY: 1,
+          type: "upload",
+          ...newSignAttrs
+        };
+        selectShape(item._id);
+        setSignatures(prev => [...prev, item]);
+      }
       setImageBase64("");
-      setSignatures(prev => [...prev, item]);
       onModalClose();
+      setShowContextMenu(false);
     } else {
       toast({
         title: "Upload Image First",
@@ -91,9 +145,6 @@ export const SignaturePad = () => {
       });
     }
   }
-
-
-
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -110,38 +161,34 @@ export const SignaturePad = () => {
   };
 
 
-
-
   return (
     <div>
-      {/* <Tooltip label="Signature Pad">
-        <Button colorScheme='orange' variant="outline" size='xs' onClick={onOpen}><FaSignature /></Button>
-      </Tooltip> */}
       <Modal isOpen={isOpen} size="3xl" onClose={onModalClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Draw Your Signature</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Tabs isFitted defaultIndex={0} variant="enclosed">
+            <Tabs isFitted defaultIndex={!isUpdateMode || itemType === "draw"? 0 : 1} variant="enclosed">
               <TabList>
-                <Tab _selected={{ bg: "blue.400", color: "#fff" }}>Draw</Tab>
-                <Tab _selected={{ bg: "blue.400", color: "#fff" }}>Upload</Tab>
+                <Tab isDisabled={!isUpdateMode ? false : (itemType === "draw" ? false : true)} _selected={{ bg: "blue.400", color: "#fff" }}>Draw</Tab>
+                <Tab isDisabled={!isUpdateMode ? false : (itemType === "draw" ? true : false)} _selected={{ bg: "blue.400", color: "#fff" }}>Upload</Tab>
               </TabList>
               <TabPanels className="border dark:border-neutral-700 border-t-0 py-2" roundedBottom={12}>
                 <TabPanel>
                   <div className='flex flex-col gap-2'>
-                    <div>
+                    <div className='relative'>
                       <ReactSketchCanvas
-                        className='bg-neutral-100 mb-3 signatures-drawer-canvas'
+                        className='relative z-10 mb-3 signatures-drawer-canvas'
                         height={280}
                         ref={signatureCanvasRef}
                         strokeWidth={penWidth}
                         strokeColor={penColor}
-                        backgroundImage={"https://www.pngmart.com/files/3/Horizontal-Line-Transparent-Background.png"}
+                        // backgroundImage={"https://www.pngmart.com/files/3/Horizontal-Line-Transparent-Background.png"}
                         exportWithBackgroundImage={false}
                         canvasColor="#ffffff00"
                       />
+                      <span className='absolute h-0.5 w-3/4 left-[12.5%] top-2/3 bg-neutral-200'></span>
                     </div>
                     <div className='flex flex-wrap gap-3 justify-between w-full'>
                       <div className="flex flex-wrap gap-3">
@@ -203,21 +250,22 @@ export const SignaturePad = () => {
                       <Button size="md" variant="solid" colorScheme="red" mr="2" onClick={() => signatureCanvasRef.current.resetCanvas()}>Clear</Button>
                     </Tooltip>
                     <Button colorScheme='green' size="md" onClick={handleCreateDrawSignature}>
-                      Create
+                      {isUpdateMode ? "Update" : "Create"}
                     </Button>
                   </div>
                 </TabPanel>
                 <TabPanel>
                   <div>
                     <div>
-                      <div className='flex justify-between mb-6'>
+                      <div className='flex flex-wrap items-end gap-2 mb-6'>
                         <Button colorScheme="blue" padding={0}> 
                           <label htmlFor="file-upload" className="flex items-center gap-2 px-4 cursor-pointer">
                             <MdOutlineFileUpload size={24} />
                             <span>Upload Signature</span>
                           </label>
                         </Button>
-                        <input id="file-upload" type="file" onChange={handleImageChange} />
+                        <span className='text-base text-neutral-300'>accept (.png, .jpg and .jpeg)</span>
+                        <input id="file-upload" className='block' type="file" accept='image/png, image/jpg, image/jpeg' onChange={handleImageChange} />
                       </div>
                       <div className='p-4 border-2 border-dashed rounded-lg'>
                         {
@@ -236,7 +284,7 @@ export const SignaturePad = () => {
                         <HiOutlineTrash />
                       </Button>}
                       <Button colorScheme='green' onClick={handleCreateUploadSignature}>
-                        Create
+                        {isUpdateMode ? "Update" : "Create"}
                       </Button>
                     </div>
                   </div>
@@ -244,14 +292,8 @@ export const SignaturePad = () => {
               </TabPanels>
             </Tabs>
           </ModalBody>
-          <ModalFooter>
-            {/* <Tooltip label="Reset Canvas">
-              <Button size="md" variant="solid" colorScheme="red" mr="2" onClick={() => signatureCanvasRef.current.resetCanvas()}>Clear</Button>
-            </Tooltip>
-            <Button colorScheme='green' size="md" mr={3} onClick={handleCreateDrawSignature}>
-              Create
-            </Button> */}
-          </ModalFooter>
+          {/* <ModalFooter>
+          </ModalFooter> */}
         </ModalContent>
       </Modal>
     </div>
@@ -259,22 +301,21 @@ export const SignaturePad = () => {
 }
 
 
-export const Signatures = ({ pageNumber }) => {
-  const { signatures, setSignatures, selectedId, selectShape } = useStateContext();
-
+export const Signatures = memo(function Signatures({ pageNumber }) {
+  const { signatures, setSignatures, selectedId, selectShape, onContextMenu, setShowContextMenu } = useStateContext();
 
   const handleDragEnd = (e) => {
     const updatedSignatures = signatures?.map(item => {
       if(item._id === e.target.attrs._id) {
-        item = {...item, ...e.target.attrs}
+        // item = {...item, ...e.target.attrs}
+        item = {...item, x: e.target.attrs.x, y: e.target.attrs.y}
         selectShape(item._id);
+        setShowContextMenu(false);
       }
       return item;
     });
     setSignatures(updatedSignatures);
   }
-
-
 
   return (
     <>
@@ -290,6 +331,10 @@ export const Signatures = ({ pageNumber }) => {
                   ...item,
                   draggable: true,
                   onDragEnd: handleDragEnd,
+                  // : onContextMenu,
+                  onContextMenu: onContextMenu,
+                  // onDblClick: onContextMenu,
+                  onDblTap: onContextMenu,
                 }}
                 isSelected={item._id === selectedId}
                 onSelect={() => selectShape(item._id)}
@@ -305,4 +350,40 @@ export const Signatures = ({ pageNumber }) => {
       }
     </>
   )
-}
+});
+
+
+
+
+
+
+export const DrawDates = memo(function Signatures({ pageNumber }) {
+  const { datesList, onDateItemContextMenu } = useStateContext();
+
+
+  console.log(datesList);
+
+  return (
+    <>
+      {
+        datesList?.map((date, i) => {
+          if(pageNumber === date.page) {
+            return (
+              <Text
+                key={i} 
+                {...date}
+                text={date.dateText}
+                align="center"
+                fontSize={14}
+                _id={date._id}
+                onContextMenu={onDateItemContextMenu}
+                onDblTap={onDateItemContextMenu}
+              />
+            )
+          }
+          return <></>
+        })
+      }
+    </>
+  )
+});

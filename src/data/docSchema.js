@@ -57,7 +57,13 @@ export var docSchema = {
 					scaleX: 1,
 					scaleY: 1,
 				}
-			]
+			],
+			dates: [
+				{
+					x: 420,
+					y: 720,
+				}
+			],
 		},{
 			width: 584,
 			height: 775,
@@ -79,7 +85,16 @@ export var docSchema = {
 					scaleX: 1.2,
 					scaleY: 1,
 				}
-			]
+			],
+			dates: [
+				{
+					x: 420,
+					y: 720,
+				},{
+					x: 120,
+					y: 720,
+				}
+			],
 		},{
 			width: 584,
 			height: 775,

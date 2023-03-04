@@ -111,7 +111,7 @@ const Header = () => {
 
 
   return (
-    <header className='fixed top-0 w-full border-b-2 border-gray-200 dark:border-gray-800 z-10 h-14 md:h-14'>
+    <header className='fixed top-0 w-full border-b-2 border-gray-200 dark:border-gray-800 z-10 h-14 md:h-14 max-md:h-[9vh] max-md:relative'>
       <div className='flex justify-between w-full h-full px-3 py-0 md:px-6 md:py-1 items-center bg-[#e7ebee] dark:bg-main-dark-bg overflow-x-auto hide-scrollbar'>
         <div className='flex items-center gap-2'>
           <ToolbarBtn
