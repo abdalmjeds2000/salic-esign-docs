@@ -6,10 +6,9 @@ import { useStateContext } from "./context/ContextProvider";
 import AppRoutes from './Routes/Routes';
 import { ColorModeScript } from '@chakra-ui/react';
 import theme from './chakraTheme';
-import ContextMenu from "./components/konva-components/ContextMenu";
 
 function App() {
-  const { currentMode, isOpenSignCM, selectedId } = useStateContext();
+  const { currentMode } = useStateContext();
 
   useEffect(() => {
     document.addEventListener("contextmenu", e => e.preventDefault());
@@ -20,7 +19,6 @@ function App() {
       <div className={currentMode}>
         <ChakraProvider>
           <AppRoutes />
-          {/* {isOpenSignCM && <ContextMenu id={selectedId} />} */}
         </ChakraProvider>
       </div>
     </BrowserRouter>

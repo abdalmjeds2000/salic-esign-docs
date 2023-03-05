@@ -179,12 +179,12 @@ import { BiMessageAltDetail } from "react-icons/bi";
     const { activeThumbnailes } = useStateContext();
 
     return (
-      <div style={{ display: activeThumbnailes ? "block" : "none"}} className='w-80 bg-neutral-200 drop-shadow-lg border-r-4 border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 flex-col overflow-hidden resize-x p-4 max-md:fixed max-md:z-50 max-md:left-0 max-md:top-14 max-md:h-full max-md:w-24 max-md:py-2 max-md:px-0.5 max-md:shadow-2xl max-md:pb-16'>
+      <div style={{ display: activeThumbnailes ? "block" : "none"}} className='w-80 overflow-auto style-scroll bg-neutral-200 drop-shadow-lg border-r-4 border-gray-300 dark:border-neutral-700 dark:bg-neutral-800 flex-col resize-x p-4 max-md:fixed max-md:z-50 max-md:left-0 max-md:top-14 max-md:h-full max-md:w-24 max-md:py-2 max-md:px-0.5 max-md:shadow-2xl max-md:pb-16'>
         <div className="max-md:hidden thumbs-header mb-4">
           <SliderThumbs getSliderValue={setSliderValue} />
           {/* <h3 className="font-semibold text-xl text-text-color dark:text-white">Thumbnails</h3> */}
         </div>
-        <Scrollbars>
+        {/* <Scrollbars> */}
           <div className='thumbs-body flex justify-center flex-wrap gap-y-4 max-md:gap-y-2 gap-x-2 max-md:py-1'>
             {
               pages?.map((item, i) => {
@@ -194,7 +194,7 @@ import { BiMessageAltDetail } from "react-icons/bi";
               })
             }
           </div>
-        </Scrollbars>
+        {/* </Scrollbars> */}
         <div className="thumbs-footer"></div>
       </div>
     )
@@ -269,67 +269,67 @@ import { BiMessageAltDetail } from "react-icons/bi";
 
 
     const Drawing = () => (
-      <>
-        <Stage
-          width={item.width * scale}
-          height={item.height * scale}
-          scale={{x: scale, y: scale}}
-          rotation={rotation}
-          style={{position: "absolute", top: 0, left: 0}}
-          onMouseDown={checkDeselect}
-          onTouchStart={checkDeselect}
-        >
-          <Layer>
-            {item?.signaturesPlaces?.map((sign, i) => (
-              <URLImage
-                key={i}
-                src={require("../assets/images/sign_placeholder.png")}
-                shapeProps={{
-                  ...sign,
-                  draggable: false,
-                  shadowBlur: 10,
-                  shadowOpacity: 0.15,
-                  shadowOffsetY: 2,
-                  onClick: (e) => {
-                    setNewSignAttrs({...sign, page: item.Index});
-                    onOpen();
-                    selectShape(null);
-                  },
-                  onTap: (e) => {
-                    setNewSignAttrs({...sign, page: item.Index});
-                    onOpen();
-                    selectShape(null);
-                  },
-                }}
-              />
-            ))}
-            {item?.dates?.map((date, i) => (
-              <Rect
-                key={i}
-                x={date.x}
-                y={date.y}
-                width={70}
-                height={15}
-                fill="#fff"
-                shadowColor="black"
-                shadowOffsetY={2}
-                shadowBlur={5}
-                shadowOpacity={0.15}
-                onClick={(e) => {
-                  const newItem = {...date, _id: i+1, page: item.Index, dateText: new Date().toLocaleDateString(), width: 70, height: 15, scaleX: 1, scaleY: 1};
-                  handelAddDate(newItem);
-                }}
-                onTap={(e) => {
-                  const newItem = {...date, _id: i+1, page: item.Index, dateText: new Date().toLocaleDateString(), width: 70, height: 15, scaleX: 1, scaleY: 1};
-                  handelAddDate(newItem);
-                }}
-              />
-            ))}
-            <Signatures pageNumber={item.Index} />
-            <DrawDates pageNumber={item.Index} />
-          </Layer>
-        </Stage>
-      </>
+      <Stage
+        width={item.width * scale}
+        height={item.height * scale}
+        scale={{x: scale, y: scale}}
+        rotation={rotation}
+        style={{position: "absolute", top: 0, left: 0}}
+        onMouseDown={checkDeselect}
+        onTouchStart={checkDeselect}
+      >
+        <Layer>
+          {item?.signaturesPlaces?.map((sign, i) => (
+            <URLImage
+              key={i}
+              src={require("../assets/images/sign_placeholder.png")}
+              shapeProps={{
+                ...sign,
+                draggable: false,
+                shadowBlur: 10,
+                shadowOpacity: 0.15,
+                shadowOffsetY: 2,
+                onClick: (e) => {
+                  setNewSignAttrs({...sign, page: item.Index});
+                  onOpen();
+                  selectShape(null);
+                },
+                onTap: (e) => {
+                  setNewSignAttrs({...sign, page: item.Index});
+                  onOpen();
+                  selectShape(null);
+                },
+              }}
+            />
+          ))}
+          {item?.dates?.map((date, i) => (
+            <Rect
+              key={i}
+              x={date.x}
+              y={date.y}
+              width={70}
+              height={15}
+              fill="#fff"
+              shadowColor="black"
+              shadowOffsetY={2}
+              shadowBlur={5}
+              shadowOpacity={0.15}
+              onClick={(e) => {
+                const newItem = {...date, _id: i+1, page: item.Index, dateText: new Date().toLocaleDateString(), width: 70, height: 15, scaleX: 1, scaleY: 1};
+                handelAddDate(newItem);
+              }}
+              onTap={(e) => {
+                const newItem = {...date, _id: i+1, page: item.Index, dateText: new Date().toLocaleDateString(), width: 70, height: 15, scaleX: 1, scaleY: 1};
+                handelAddDate(newItem);
+              }}
+            />
+          ))}
+        </Layer>
+        <Layer clearBeforeDraw={true}>
+          <Signatures pageNumber={item.Index} />
+          <DrawDates pageNumber={item.Index} />
+        </Layer>
+      </Stage>
     )
     
     return (
@@ -399,7 +399,7 @@ import { BiMessageAltDetail } from "react-icons/bi";
       <div className="flex-[7] flex flex-col bg-neutral-300 px-0 md:px-6 dark:bg-neutral-700 overflow-auto">
         <div className="pages-header"></div>
         <div className='pages-body h-full'>
-          <Scrollbars style={{ height: "100%" }}>
+          {/* <Scrollbars style={{ height: "100%" }}> */}
             <div ref={pagesParentRef} id="pagesParentRef" className='pages block h-full pt-5 pb-10'>
               {
                 pages?.map((item) => (
@@ -413,7 +413,7 @@ import { BiMessageAltDetail } from "react-icons/bi";
                 ))
               }
             </div>
-          </Scrollbars>
+          {/* </Scrollbars> */}
         </div>
         <div className="pages-footer"></div>
       </div>

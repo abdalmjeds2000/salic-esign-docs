@@ -2,7 +2,8 @@ import React, { memo } from 'react';
 import { Group, Image, Transformer } from 'react-konva';
 import useImage from 'use-image';
 
-const URLImage = memo(function URLImage({ _id, src, shapeProps, isSelected, onSelect, onChange, onClick, onTap}) {
+const URLImage = function URLImage(props) {
+  const { _id, src, shapeProps, isSelected, onSelect, onChange, onClick, onTap } = props;
   const [img] = useImage(src);
   const shapeRef = React.useRef();
   const trRef = React.useRef();
@@ -58,7 +59,6 @@ const URLImage = memo(function URLImage({ _id, src, shapeProps, isSelected, onSe
     };
   };
 
-
   return (
     <React.Fragment>
       <Group>
@@ -99,29 +99,29 @@ const URLImage = memo(function URLImage({ _id, src, shapeProps, isSelected, onSe
             });
           }}
         />
+        {isSelected && (
+          <Transformer
+            ref={trRef}
+            keepRatio={false}
+            rotateAnchorOffset={25}
+            anchorSize={10}
+            anchorCornerRadius={2}
+            borderStroke="#4466ff"
+            anchorStroke='#4466ff'
+            anchorStrokeWidth={2}
+            borderStrokeWidth={2}
+            boundBoxFunc={(oldBox, newBox) => {
+              // limit resize
+              if (newBox.width < 25 || newBox.height < 25) {
+                return oldBox;
+              }
+              return newBox;
+            }}
+          />
+        )}
       </Group>
-      {isSelected && (
-        <Transformer
-          ref={trRef}
-          keepRatio={false}
-          rotateAnchorOffset={25}
-          anchorSize={10}
-          anchorCornerRadius={2}
-          borderStroke="#4466ff"
-          anchorStroke='#4466ff'
-          anchorStrokeWidth={2}
-          borderStrokeWidth={2}
-          boundBoxFunc={(oldBox, newBox) => {
-            // limit resize
-            if (newBox.width < 25 || newBox.height < 25) {
-              return oldBox;
-            }
-            return newBox;
-          }}
-        />
-      )}
     </React.Fragment>
   );
-})
+}
 
-export default URLImage
+export default memo(URLImage);

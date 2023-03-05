@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import ReactDOM from "react-dom";
 
-const ContextMenu = memo(function withMemo(props) {
+const ContextMenu = (props) => {
   return (
     ReactDOM.createPortal(
       <div
@@ -16,6 +16,6 @@ const ContextMenu = memo(function withMemo(props) {
       document.getElementById("portals-content")
     )
   );
-});
+};
 
-export default ContextMenu;
+export default memo(ContextMenu);

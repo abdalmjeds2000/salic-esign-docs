@@ -8,7 +8,6 @@ const StateContext = createContext();
 export const ContextProvider = ({ children }) => {
   const [activeThumbnailes, setActiveThumbnailes] = useState(false);
   const [currentMode, setCurrentMode] = useState(localStorage.getItem('chakra-ui-color-mode') || 'light');
-  const [currentPage, setCurrentPage] = useState(1);
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [signatures, setSignatures] = useState([]);
@@ -17,23 +16,19 @@ export const ContextProvider = ({ children }) => {
   const [isAllowShowDoc, setIsAllowShowDoc] = useState(false);
   const [documentSchema, setDocumentSchema] = useState(docSchema);
   const [selectedId, selectShape] = React.useState(null);
-  const totalPages = documentSchema?.numOfPages;
-  const [isOpenSignCM, setIsisOpenSignCM] = useState(false);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
-
-
   const [datesList, setDatesList] = useState([]);
   const [showDateContextMenu, setShowDateContextMenu] = useState(false);
   const [dateContextMenuPosition, setDateContextMenuPosition] = useState({ x: 0, y: 0, _id: null });
-
   const { isOpen, onOpen, onClose } = useDisclosure();
-
   const [newSignAttrs, setNewSignAttrs] = useState({});
   const toast = useToast();
 
 
-
+  useEffect(() => {
+    console.log(signatures);
+  }, [signatures])
 
   const setMode = (value) => {
     setCurrentMode(value);
@@ -54,25 +49,6 @@ export const ContextProvider = ({ children }) => {
     setRotation(prev => prev + 90);
   }
 
-  function nextPage() {
-    setCurrentPage(prev => prev < totalPages ? prev + 1 : prev);
-  }
-  function previousPage() {
-    setCurrentPage(prev => prev > 1 ? prev - 1 : prev);
-  }
-
-  function goToPage(page) {
-    setActivePage(page);
-    const element = document.getElementById(`page_${page}`);
-    if (element) element.scrollIntoView({ behavior: 'smooth' });
-  }
-
-
-  function goPage(value) {
-    if(Number(value) <= totalPages && Number(value) > 0) {
-      setCurrentPage(value);
-    }
-  }
 
   function handleFullScreen() {
     if ((!document.mozFullScreen && !document.webkitIsFullScreen)) {
@@ -109,7 +85,7 @@ export const ContextProvider = ({ children }) => {
   var isMobile = (/iphone|ipad|ipod|android|blackberry|mini|windows\sce|palm/i.test(navigator.userAgent.toLowerCase()));
 
   const setScaleByParentWidth = () => {
-    const paddingPage = isMobile ? 5 : 25;
+    const paddingPage = isMobile ? 5 : 0;
     const parentWidth = document.getElementById("pagesParentRef")?.clientWidth - paddingPage;
     const firstPageWidth = documentSchema?.pages[0].width;
     const newScale = parentWidth / firstPageWidth;
@@ -175,22 +151,16 @@ export const ContextProvider = ({ children }) => {
       currentMode, setMode,
       handleZoomIn, handleZoomOut, setZoom,
       handleRotateLeft, handleRotateRight,
-      nextPage, previousPage,
-      currentPage, setCurrentPage,
-      scale,
-      rotation, setRotation,
-      goPage,
+      scale, rotation, setRotation,
       handleFullScreen,
       signatures, setSignatures,
       activePage, setActivePage,
-      goToPage,
       pdfQuality, setPdfQuality,
       isAllowShowDoc, setIsAllowShowDoc,
       setScaleByParentWidth,
       documentSchema, setDocumentSchema,
       selectedId, selectShape,
       isMobile,
-      isOpenSignCM, setIsisOpenSignCM,
       handleDeleteSignature,
       isOpen, onOpen, onClose,
       newSignAttrs, setNewSignAttrs,

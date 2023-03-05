@@ -361,8 +361,6 @@ export const DrawDates = memo(function Signatures({ pageNumber }) {
   const { datesList, onDateItemContextMenu } = useStateContext();
 
 
-  console.log(datesList);
-
   return (
     <>
       {
